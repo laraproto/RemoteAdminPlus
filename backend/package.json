@@ -1,0 +1,23 @@
+{
+  "name": "@remotadminplus/backend",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@pothos/core": "^4.6.2",
+    "dotenv": "^16.5.0",
+    "drizzle-kit": "^0.31.1",
+    "drizzle-orm": "^0.44.1",
+    "elysia": "latest",
+    "graphql-yoga": "^5.13.5",
+    "ioredis": "^5.6.1",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.15.3",
+    "bun-types": "latest"
+  },
+  "module": "src/index.js"
+}
