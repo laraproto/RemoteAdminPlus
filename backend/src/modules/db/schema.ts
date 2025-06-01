@@ -8,6 +8,7 @@ import {
   primaryKey,
   bigint,
   boolean,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -48,12 +49,16 @@ export const usersToPanels = pgTable(
 export const usersRelations = relations(users, ({ many }) => ({
   usersToPanels: many(usersToPanels),
   connections: many(connections),
+  bans: many(playerBans, { relationName: "banAuthor" }),
+  warns: many(playerWarns, { relationName: "warnAuthor" }),
 }));
 
 export const panelsRelations = relations(panels, ({ many }) => ({
   usersToPanels: many(usersToPanels),
   panelGroups: many(panelGroups),
   gameGroups: many(gameGroups),
+  bans: many(playerBans, { relationName: "banPanel" }),
+  warns: many(playerWarns, { relationName: "warnPanel" }),
 }));
 
 export const usersToPanelsRelations = relations(usersToPanels, ({ one }) => ({
@@ -132,3 +137,65 @@ export const playerStatistics = pgTable("playerStatistics", {
   hoursThisWeek: integer("hours_this_week").notNull().default(0),
   ...timeData,
 });
+
+export const bansEnum = pgEnum("banType", ["temporary", "permanent"]);
+
+export const playerBans = pgTable("playerBans", {
+  id: serial("id").primaryKey(),
+  authorId: integer("author_id").notNull(),
+  victimId: integer("victim_id").notNull(),
+  panelId: integer("panel_id").notNull(),
+  reason: varchar("reason", { length: 1000 }),
+  type: bansEnum().notNull(),
+  expiresAt: timestamp("expires_at").notNull().defaultNow(),
+});
+
+export const warnsEnum = pgEnum("warnType", ["strike", "minor", "major"]);
+
+export const playerWarns = pgTable("playerWarns", {
+  id: serial("id").primaryKey(),
+  authorId: integer("author_id").notNull(),
+  victimId: integer("victim_id").notNull(),
+  panelId: integer("panel_id").notNull(),
+  reason: varchar("reason", { length: 1000 }),
+  type: warnsEnum().notNull(),
+  expiresAt: timestamp("expires_at"),
+});
+
+export const playerStatisticsRelations = relations(
+  playerStatistics,
+  ({ many }) => ({
+    bans: many(playerBans, { relationName: "banVictim" }),
+    warns: many(playerWarns, { relationName: "warnVictim" }),
+  }),
+);
+
+export const playerBansRelations = relations(playerBans, ({ one }) => ({
+  banAuthor: one(users, {
+    fields: [playerBans.authorId],
+    references: [users.id],
+  }),
+  banPanel: one(panels, {
+    fields: [playerBans.panelId],
+    references: [panels.id],
+  }),
+  banVictim: one(players, {
+    fields: [playerBans.victimId],
+    references: [players.id],
+  }),
+}));
+
+export const playerWarnsRelations = relations(playerWarns, ({ one }) => ({
+  warnAuthor: one(users, {
+    fields: [playerWarns.authorId],
+    references: [users.id],
+  }),
+  warnPanel: one(panels, {
+    fields: [playerWarns.panelId],
+    references: [panels.id],
+  }),
+  warnVictim: one(players, {
+    fields: [playerWarns.victimId],
+    references: [players.id],
+  }),
+}));
