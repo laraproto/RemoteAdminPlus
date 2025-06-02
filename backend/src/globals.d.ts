@@ -5,6 +5,7 @@ declare module "bun" {
     HOSTNAME: string;
     PORT: string;
     DATABASE_URL: string;
+    REDIS_PREFIX: string;
     REDIS_URL: string;
   }
 }

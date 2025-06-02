@@ -12,6 +12,8 @@ export const DATABASE_URL = (() => {
   return Bun.env.DATABASE_URL;
 })();
 
+export const REDIS_PREFIX = Bun.env.REDIS_PREFIX ?? "remoteadminplus:";
+
 export const REDIS_URL = (() => {
   if (!Bun.env.REDIS_URL) throw new Error("REDIS_URL is not set");
 
