@@ -5,6 +5,14 @@ import { validateSessionToken } from "@modules/auth";
 
 export const validateUserAuth = async (token: string) => {
   const session = await validateSessionToken(token);
+
+  if (!session) {
+    throw new Error("Invalid session token");
+  }
+
+  return await db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.id, session.userId),
+  });
 };
 
 export const validateHeaderAuth = async (token: string) => {
