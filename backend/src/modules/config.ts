@@ -12,6 +12,12 @@ export const DATABASE_URL = (() => {
   return Bun.env.DATABASE_URL;
 })();
 
+export const JWT_SECRET = (() => {
+  if (!Bun.env.JWT_SECRET) throw new Error("JWT_SECRET is not set");
+
+  return new TextEncoder().encode(Bun.env.JWT_SECRET);
+})();
+
 export const REDIS_PREFIX = Bun.env.REDIS_PREFIX ?? "remoteadminplus:";
 
 export const REDIS_URL = (() => {

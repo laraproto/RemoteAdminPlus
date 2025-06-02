@@ -57,6 +57,7 @@ export const panelsRelations = relations(panels, ({ many }) => ({
   usersToPanels: many(usersToPanels),
   panelGroups: many(panelGroups),
   gameGroups: many(gameGroups),
+  serverApiKey: many(server),
   bans: many(playerBans, { relationName: "banPanel" }),
   warns: many(playerWarns, { relationName: "warnPanel" }),
 }));
@@ -272,4 +273,20 @@ export const playerWarnsRelations = relations(playerWarns, ({ one }) => ({
     fields: [playerWarns.victimId],
     references: [players.id],
   }),
+}));
+
+// Used for communication between server and api
+export const server = pgTable("serverApiKey", {
+  id: serial("id").primaryKey(),
+  // store the hashed representation you fuck
+  key: varchar("key", { length: 64 }).notNull().unique(),
+  panelId: integer("panel_id")
+    .notNull()
+    .references(() => panels.id, { onDelete: "cascade" }),
+  description: varchar("description", { length: 255 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const serverRelations = relations(server, ({ one }) => ({
+  panel: one(panels),
 }));
