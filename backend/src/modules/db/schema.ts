@@ -98,6 +98,37 @@ export const panelGroups = pgTable("panelGroups", {
   ...timeData,
 });
 
+export const panelGroupsToInheritedGroups = pgTable(
+  "panelGroupsToInheritedGroups",
+  {
+    inheritingGroupId: integer("inheriting_group_id")
+      .notNull()
+      .references(() => panelGroups.id, { onDelete: "cascade" }),
+    inheritedGroupId: integer("inherited_group_id")
+      .notNull()
+      .references(() => panelGroups.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.inheritedGroupId, t.inheritingGroupId] })],
+);
+
+export const panelGroupsToInheritedGroupsRelations = relations(
+  panelGroupsToInheritedGroups,
+  ({ one }) => ({
+    inheritingGroup: one(panelGroups, {
+      fields: [panelGroupsToInheritedGroups.inheritingGroupId],
+      references: [panelGroups.id],
+    }),
+    inheritedGroup: one(panelGroups, {
+      fields: [panelGroupsToInheritedGroups.inheritedGroupId],
+      references: [panelGroups.id],
+    }),
+  }),
+);
+
+export const panelGroupsRelations = relations(panelGroups, ({ many }) => ({
+  inheritingGroupsToInheritedGroups: many(panelGroupsToInheritedGroups),
+}));
+
 export const gameGroups = pgTable("gameGroups", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 80 }).notNull(),
@@ -111,8 +142,36 @@ export const gameGroups = pgTable("gameGroups", {
   ...timeData,
 });
 
+export const gameGroupsToInheritedGroups = pgTable(
+  "gameGroupsToInheritedGroups",
+  {
+    inheritingGroupId: integer("inheriting_group_id")
+      .notNull()
+      .references(() => gameGroups.id, { onDelete: "cascade" }),
+    inheritedGroupId: integer("inherited_group_id")
+      .notNull()
+      .references(() => gameGroups.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.inheritedGroupId, t.inheritingGroupId] })],
+);
+
+export const gameGroupsToInheritedGroupsRelations = relations(
+  gameGroupsToInheritedGroups,
+  ({ one }) => ({
+    inheritingGroup: one(gameGroups, {
+      fields: [gameGroupsToInheritedGroups.inheritingGroupId],
+      references: [gameGroups.id],
+    }),
+    inheritedGroup: one(gameGroups, {
+      fields: [gameGroupsToInheritedGroups.inheritedGroupId],
+      references: [gameGroups.id],
+    }),
+  }),
+);
+
 export const gameGroupsRelations = relations(gameGroups, ({ many }) => ({
   panelGroups: many(panelGroups),
+  inheritingGroupsToInheritedGroups: many(gameGroupsToInheritedGroups),
 }));
 
 export const players = pgTable("players", {
@@ -143,21 +202,36 @@ export const bansEnum = pgEnum("banType", ["temporary", "permanent"]);
 export const playerBans = pgTable("playerBans", {
   id: serial("id").primaryKey(),
   authorId: integer("author_id").notNull(),
-  victimId: integer("victim_id").notNull(),
-  panelId: integer("panel_id").notNull(),
+  victimId: integer("victim_id")
+    .references(() => players.id, { onDelete: "cascade" })
+    .notNull(),
+  panelId: integer("panel_id")
+    .references(() => panels.id, { onDelete: "cascade" })
+    .notNull(),
   reason: varchar("reason", { length: 1000 }),
   type: bansEnum().notNull(),
   expiresAt: timestamp("expires_at").notNull().defaultNow(),
 });
 
-export const warnsEnum = pgEnum("warnType", ["strike", "minor", "major"]);
+export const warnsEnum = pgEnum("warnType", [
+  "strike",
+  "minor",
+  "major",
+  "tempminor",
+  "tempmajor",
+]);
 
 export const playerWarns = pgTable("playerWarns", {
   id: serial("id").primaryKey(),
   authorId: integer("author_id").notNull(),
-  victimId: integer("victim_id").notNull(),
-  panelId: integer("panel_id").notNull(),
+  victimId: integer("victim_id")
+    .references(() => players.id, { onDelete: "cascade" })
+    .notNull(),
+  panelId: integer("panel_id")
+    .references(() => panels.id, { onDelete: "cascade" })
+    .notNull(),
   reason: varchar("reason", { length: 1000 }),
+  hidden: boolean("hidden").notNull().default(false),
   type: warnsEnum().notNull(),
   expiresAt: timestamp("expires_at"),
 });
