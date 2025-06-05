@@ -27,18 +27,16 @@ export const validateHeaderAuth = async (token: string) => {
     key: string;
   }>(authToken, JWT_SECRET);
 
-  const hashedKey = await Bun.password.hash(payload.key, {
-    algorithm: "bcrypt",
-  });
-
   switch (authType) {
     case "Server":
       const data = await db.query.server.findFirst({
-        where: (server, { eq }) =>
-          eq(server.id, payload.id) && eq(server.key, hashedKey),
+        where: (server, { eq }) => eq(server.id, payload.id),
       });
 
       if (data == undefined) throw new Error("Server not found or invalid key");
+
+      if (await Bun.password.verify(authToken, data.key))
+        throw new Error("Server not found or invalid key");
 
       return {
         type: "server",
