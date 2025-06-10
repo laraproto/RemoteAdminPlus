@@ -1,10 +1,10 @@
 import SchemaBuilder from "@pothos/core";
-import { users, server } from "@modules/db";
+import { users, servers } from "@modules/db";
 
 const builder = new SchemaBuilder<{
   Context: {
     currentUser?: typeof users.$inferSelect;
-    server?: typeof server.$inferSelect;
+    server?: typeof servers.$inferSelect;
   };
 }>({});
 
@@ -14,7 +14,8 @@ builder.queryType({
       args: {
         name: t.arg.string(),
       },
-      resolve: (parent, { name }, context) => name,
+      resolve: (parent, { name }, context) =>
+        `${name}, or should I say ${context.currentUser?.username}`,
     }),
   }),
 });

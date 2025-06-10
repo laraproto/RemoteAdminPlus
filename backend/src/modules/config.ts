@@ -1,6 +1,10 @@
+export const NODE_ENV = Bun.env.NODE_ENV ?? "development";
+
 export const API_DOMAIN = Bun.env.API_DOMAIN ?? "http://localhost:3000";
 
 export const DOMAIN = Bun.env.DOMAIN ?? "http://localhost:5173";
+
+export const COOKIE_DOMAIN = Bun.env.COOKIE_DOMAIN ?? ".localhost";
 
 export const HOSTNAME = Bun.env.HOSTNAME ?? "localhost";
 

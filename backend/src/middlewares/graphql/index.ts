@@ -1,4 +1,4 @@
-import { users, server, db } from "@modules/db";
+import { servers, db } from "@modules/db";
 import { JWT_SECRET } from "@modules/config";
 import * as jose from "jose";
 import { validateSessionToken } from "@modules/auth";
@@ -28,20 +28,21 @@ export const validateHeaderAuth = async (token: string) => {
   }>(authToken, JWT_SECRET);
 
   switch (authType) {
-    case "Server":
-      const data = await db.query.server.findFirst({
-        where: (server, { eq }) => eq(server.id, payload.id),
+    case "Server": {
+      const data = await db.query.servers.findFirst({
+        where: (servers, { eq }) => eq(servers.id, payload.id),
       });
 
-      if (data == undefined) throw new Error("Server not found or invalid key");
+      if (data == undefined) throw new Error("Server not found");
 
-      if (await Bun.password.verify(authToken, data.key))
-        throw new Error("Server not found or invalid key");
+      if (await Bun.password.verify(payload.key, data.key))
+        throw new Error("Invalid key");
 
       return {
         type: "server",
         data,
       } as Ident;
+    }
     case "Bearer":
       // TODO
       break;
@@ -50,5 +51,5 @@ export const validateHeaderAuth = async (token: string) => {
 
 interface Ident {
   type: "user" | "server";
-  data: typeof users.$inferSelect | typeof server.$inferSelect;
+  data: typeof servers.$inferSelect;
 }

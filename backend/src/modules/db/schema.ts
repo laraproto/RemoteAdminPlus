@@ -22,6 +22,9 @@ export const panels = pgTable("panels", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 80 }).notNull(),
   description: varchar("description", { length: 8000 }),
+  ownerId: integer("owner_id").references(() => users.id, {
+    onDelete: "cascade",
+  }),
   ...timeData,
 });
 
@@ -51,13 +54,18 @@ export const usersRelations = relations(users, ({ many }) => ({
   connections: many(connections),
   bans: many(playerBans, { relationName: "banAuthor" }),
   warns: many(playerWarns, { relationName: "warnAuthor" }),
+  panels: many(panels),
 }));
 
-export const panelsRelations = relations(panels, ({ many }) => ({
+export const panelsRelations = relations(panels, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [panels.ownerId],
+    references: [users.id],
+  }),
   usersToPanels: many(usersToPanels),
   panelGroups: many(panelGroups),
   gameGroups: many(gameGroups),
-  serverApiKey: many(server),
+  servers: many(servers),
   bans: many(playerBans, { relationName: "banPanel" }),
   warns: many(playerWarns, { relationName: "warnPanel" }),
 }));
@@ -83,6 +91,13 @@ export const connections = pgTable("connections", {
   data: jsonb("data").notNull(),
   ...timeData,
 });
+
+export const connectionsRelations = relations(connections, ({ one }) => ({
+  user: one(users, {
+    fields: [connections.userId],
+    references: [users.id],
+  }),
+}));
 
 export const panelGroups = pgTable("panelGroups", {
   id: serial("id").primaryKey(),
@@ -118,16 +133,31 @@ export const panelGroupsToInheritedGroupsRelations = relations(
     inheritingGroup: one(panelGroups, {
       fields: [panelGroupsToInheritedGroups.inheritingGroupId],
       references: [panelGroups.id],
+      relationName: "inheritingGroup",
     }),
     inheritedGroup: one(panelGroups, {
       fields: [panelGroupsToInheritedGroups.inheritedGroupId],
       references: [panelGroups.id],
+      relationName: "inheritedGroup",
     }),
   }),
 );
 
-export const panelGroupsRelations = relations(panelGroups, ({ many }) => ({
-  inheritingGroupsToInheritedGroups: many(panelGroupsToInheritedGroups),
+export const panelGroupsRelations = relations(panelGroups, ({ one, many }) => ({
+  inheritingGroupsToInheritedGroups: many(panelGroupsToInheritedGroups, {
+    relationName: "inheritingGroup",
+  }),
+  inheritedGroupsToInheritingGroups: many(panelGroupsToInheritedGroups, {
+    relationName: "inheritedGroup",
+  }),
+  gameGroups: one(gameGroups, {
+    fields: [panelGroups.gameGroupId],
+    references: [gameGroups.id],
+  }),
+  panel: one(panels, {
+    fields: [panelGroups.panelId],
+    references: [panels.id],
+  }),
 }));
 
 export const gameGroups = pgTable("gameGroups", {
@@ -162,17 +192,28 @@ export const gameGroupsToInheritedGroupsRelations = relations(
     inheritingGroup: one(gameGroups, {
       fields: [gameGroupsToInheritedGroups.inheritingGroupId],
       references: [gameGroups.id],
+      relationName: "inheritingGroup",
     }),
     inheritedGroup: one(gameGroups, {
       fields: [gameGroupsToInheritedGroups.inheritedGroupId],
       references: [gameGroups.id],
+      relationName: "inheritedGroup",
     }),
   }),
 );
 
-export const gameGroupsRelations = relations(gameGroups, ({ many }) => ({
+export const gameGroupsRelations = relations(gameGroups, ({ one, many }) => ({
   panelGroups: many(panelGroups),
-  inheritingGroupsToInheritedGroups: many(gameGroupsToInheritedGroups),
+  inheritingGroupsToInheritedGroups: many(gameGroupsToInheritedGroups, {
+    relationName: "inheritingGroup",
+  }),
+  inheritedGroupsToInheritingGroups: many(gameGroupsToInheritedGroups, {
+    relationName: "inheritedGroup",
+  }),
+  panel: one(panels, {
+    fields: [gameGroups.panelId],
+    references: [panels.id],
+  }),
 }));
 
 export const players = pgTable("players", {
@@ -249,14 +290,21 @@ export const playerBansRelations = relations(playerBans, ({ one }) => ({
   banAuthor: one(users, {
     fields: [playerBans.authorId],
     references: [users.id],
+    relationName: "banAuthor",
   }),
   banPanel: one(panels, {
     fields: [playerBans.panelId],
     references: [panels.id],
   }),
-  banVictim: one(players, {
+  banVictim: one(playerStatistics, {
     fields: [playerBans.victimId],
-    references: [players.id],
+    references: [playerStatistics.id],
+    relationName: "banVictim",
+  }),
+  panel: one(panels, {
+    fields: [playerBans.panelId],
+    references: [panels.id],
+    relationName: "banPanel",
   }),
 }));
 
@@ -264,19 +312,26 @@ export const playerWarnsRelations = relations(playerWarns, ({ one }) => ({
   warnAuthor: one(users, {
     fields: [playerWarns.authorId],
     references: [users.id],
+    relationName: "warnAuthor",
   }),
   warnPanel: one(panels, {
     fields: [playerWarns.panelId],
     references: [panels.id],
   }),
-  warnVictim: one(players, {
+  warnVictim: one(playerStatistics, {
     fields: [playerWarns.victimId],
-    references: [players.id],
+    references: [playerStatistics.id],
+    relationName: "warnVictim",
+  }),
+  panel: one(panels, {
+    fields: [playerWarns.panelId],
+    references: [panels.id],
+    relationName: "warnPanel",
   }),
 }));
 
 // Used for communication between server and api
-export const server = pgTable("serverApiKey", {
+export const servers = pgTable("serverApiKey", {
   id: serial("id").primaryKey(),
   // store the hashed representation you fuck
   key: varchar("key", { length: 64 }).notNull().unique(),
@@ -287,6 +342,9 @@ export const server = pgTable("serverApiKey", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const serverRelations = relations(server, ({ one }) => ({
-  panel: one(panels),
+export const serverRelations = relations(servers, ({ one }) => ({
+  panel: one(panels, {
+    fields: [servers.panelId],
+    references: [panels.id],
+  }),
 }));

@@ -2,8 +2,14 @@ import Elysia from "elysia";
 
 import { yoga } from "@modules/graphql";
 import { routes } from "@routes/index";
+import { COOKIE_DOMAIN, NODE_ENV } from "@modules/config";
 
-const app = new Elysia()
+const app = new Elysia({
+  cookie: {
+    domain: COOKIE_DOMAIN,
+    secure: NODE_ENV !== "development",
+  },
+})
   .use(routes)
   .get("/graphql", async ({ request }) => yoga.fetch(request), {
     detail: {

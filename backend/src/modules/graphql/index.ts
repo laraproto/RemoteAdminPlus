@@ -2,7 +2,7 @@ import { createYoga } from "graphql-yoga";
 import { useCookies } from "@whatwg-node/server-plugin-cookies";
 
 import { schema } from "./schema";
-import { validateUserAuth } from "@middlewares/graphql";
+import { validateHeaderAuth, validateUserAuth } from "@middlewares/graphql";
 
 export const yoga = createYoga({
   cors: false,
@@ -11,7 +11,8 @@ export const yoga = createYoga({
   plugins: [useCookies()],
   context: async (ctx) => ({
     currentUser: validateUserAuth(
-      (await ctx.request.cookieStore?.get("session"))?.value!,
+      (await ctx.request.cookieStore?.get("session"))?.value || "",
     ),
+    server: validateHeaderAuth(ctx.request.headers.get("authorization") ?? ""),
   }),
 });
