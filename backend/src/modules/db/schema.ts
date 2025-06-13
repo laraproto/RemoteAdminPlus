@@ -13,7 +13,7 @@ import {
 import { relations } from "drizzle-orm";
 
 const timeData = {
-  createdAt: timestamp().notNull(),
+  createdAt: timestamp().notNull().defaultNow(),
   updatedAt: timestamp(),
 };
 
@@ -31,7 +31,7 @@ export const panels = pgTable("panels", {
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: varchar("username", { length: 255 }).notNull().unique(),
-  password: varchar("password", { length: 255 }).notNull(),
+  password: varchar("password", { length: 512 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   ...timeData,
 });
