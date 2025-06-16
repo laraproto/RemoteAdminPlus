@@ -1,3 +1,5 @@
 import { Elysia } from "elysia";
 
-export const routes = new Elysia({ prefix: "/" });
+import { auth as authRouter } from "@routes/auth";
+
+export const routes = new Elysia({ prefix: "/" }).use(authRouter);

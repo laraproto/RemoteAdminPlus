@@ -1,4 +1,6 @@
 import { createYoga } from "graphql-yoga";
+import { initContextCache } from "@pothos/core";
+
 import { useCookies } from "@whatwg-node/server-plugin-cookies";
 
 import { schema } from "./schema";
@@ -10,6 +12,9 @@ export const yoga = createYoga({
   schema,
   plugins: [useCookies()],
   context: async (ctx) => ({
+
+    ...initContextCache(),
+
     currentUser: validateUserAuth(
       (await ctx.request.cookieStore?.get("session"))?.value || "",
     ),

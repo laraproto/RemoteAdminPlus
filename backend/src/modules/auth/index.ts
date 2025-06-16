@@ -14,12 +14,14 @@ export function generateSessionToken(): string {
 export async function createSession(
   token: string,
   userId: number,
+  flags: SessionFlags,
 ): Promise<Session> {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const session: Session = {
     id: sessionId,
     userId,
     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    twoFactorVerified: flags.twoFactorVerified ?? false,
   };
 
   await redis.set(
@@ -28,6 +30,7 @@ export async function createSession(
       id: session.id,
       user_id: session.userId,
       expires_at: Math.floor(session.expiresAt.getTime() / 1000),
+      two_factor_verified: session.twoFactorVerified,
     }),
   );
 
@@ -55,6 +58,7 @@ export async function validateSessionToken(
     id: result.id,
     userId: result.user_id,
     expiresAt: new Date(result.expires_at * 1000),
+    twoFactorVerified: result.two_factor_verified,
   };
   if (Date.now() >= session.expiresAt.getTime()) {
     await redis.del(`session:${sessionId}`);
@@ -69,6 +73,7 @@ export async function validateSessionToken(
         id: session.id,
         user_id: session.userId,
         expires_at: Math.floor(session.expiresAt.getTime() / 1000),
+        two_factor_verified: session.twoFactorVerified,
       }),
     );
 
@@ -104,7 +109,36 @@ export async function invalidateAllSessions(userId: number): Promise<void> {
   await pipeline.exec();
 }
 
-export interface Session {
+export async function setSession2FAVerified(sessionId: string): Promise<void> {
+  const item = await redis.get(`session:${sessionId}`);
+  if (item === null) {
+    return;
+  }
+
+  const result = JSON.parse(item);
+  const session: Session = {
+    id: result.id,
+    userId: result.user_id,
+    expiresAt: new Date(result.expires_at * 1000),
+    twoFactorVerified: result.two_factor_verified,
+  };
+
+  await redis.set(
+    `session:${session.id}`,
+    JSON.stringify({
+      id: session.id,
+      user_id: session.userId,
+      expires_at: Math.floor(session.expiresAt.getTime() / 1000),
+      two_factor_verified: session.twoFactorVerified,
+    }),
+  )
+}
+
+export interface SessionFlags {
+  twoFactorVerified: boolean;
+}
+
+export interface Session extends SessionFlags {
   id: string;
   userId: number;
   expiresAt: Date;
