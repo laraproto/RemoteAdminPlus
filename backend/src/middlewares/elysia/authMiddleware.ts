@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 
 import * as authSystem from "@modules/auth";
 import { db, users } from "@modules/db";
+import { Session } from "@modules/auth";
 
 const authMiddleware = <T extends string>(config: { prefix?: T, requiresMFA?: boolean } = { requiresMFA: true }) => new Elysia(
   {
@@ -11,7 +12,7 @@ const authMiddleware = <T extends string>(config: { prefix?: T, requiresMFA?: bo
 ).resolve(async ({ cookie: { session }}) => {
   const sessionToken = session.value ?? "";
 
-  const currentSession = await authSystem.validateSessionToken(sessionToken);
+  const currentSession: Session | null = await authSystem.validateSessionToken(sessionToken);
 
   let user: typeof users.$inferSelect | undefined;
 

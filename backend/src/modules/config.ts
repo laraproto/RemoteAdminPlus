@@ -1,4 +1,8 @@
+import { decodeHex } from "@oslojs/encoding";
+
 export const NODE_ENV = Bun.env.NODE_ENV ?? "development";
+
+export const APP_NAME = Bun.env.APP_NAME ?? "RemoteAdminPlus";
 
 export const API_DOMAIN = Bun.env.API_DOMAIN ?? "http://localhost:3000";
 
@@ -14,6 +18,12 @@ export const DATABASE_URL = (() => {
   if (!Bun.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
 
   return Bun.env.DATABASE_URL;
+})();
+
+export const APP_SECRET = (() => {
+  if (!Bun.env.APP_SECRET) throw new Error("APP_SECRET is not set");
+
+  return decodeHex(Bun.env.APP_SECRET);
 })();
 
 export const JWT_SECRET = (() => {

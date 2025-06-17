@@ -129,7 +129,7 @@ export async function setSession2FAVerified(sessionId: string): Promise<void> {
       id: session.id,
       user_id: session.userId,
       expires_at: Math.floor(session.expiresAt.getTime() / 1000),
-      two_factor_verified: session.twoFactorVerified,
+      two_factor_verified: true,
     }),
   )
 }
