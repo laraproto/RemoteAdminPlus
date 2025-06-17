@@ -3,7 +3,7 @@ import { Elysia } from "elysia";
 import * as authSystem from "@modules/auth";
 import { db, users } from "@modules/db";
 
-const authMiddleware = <T extends string>(config: { prefix?: T } = {}) => new Elysia(
+const authMiddleware = <T extends string>(config: { prefix?: T, requiresMFA?: boolean } = { requiresMFA: true }) => new Elysia(
   {
     name: 'authGuards',
     seed: config,

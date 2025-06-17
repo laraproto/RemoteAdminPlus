@@ -40,7 +40,7 @@ const router = new Elysia()
       }
 
       const sessionToken = auth.generateSessionToken();
-      const sessionData = await auth.createSession(sessionToken, result.id);
+      const sessionData = await auth.createSession(sessionToken, result.id, { twoFactorVerified: false });
       session.expires = sessionData.expiresAt
       session.value = sessionToken;
 
@@ -78,7 +78,7 @@ const router = new Elysia()
       }).returning({ insertedId: users.id });
 
       const sessionToken = auth.generateSessionToken();
-      const sessionData = await auth.createSession(sessionToken, newUser[0].insertedId);
+      const sessionData = await auth.createSession(sessionToken, newUser[0].insertedId, { twoFactorVerified: false});
       session.value = sessionToken;
       session.expires = sessionData.expiresAt
     } catch (e) {

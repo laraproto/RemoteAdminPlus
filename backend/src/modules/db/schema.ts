@@ -33,6 +33,8 @@ export const users = pgTable("users", {
   username: varchar("username", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 512 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  totpSecret: varchar("totp_secret", { length: 64 }),
   ...timeData,
 });
 
@@ -55,6 +57,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   bans: many(playerBans, { relationName: "banAuthor" }),
   warns: many(playerWarns, { relationName: "warnAuthor" }),
   panels: many(panels),
+  emailVerifications: many(emailVerifications),
+  passwordResets: many(passwordResets),
 }));
 
 export const panelsRelations = relations(panels, ({ one, many }) => ({
@@ -348,3 +352,38 @@ export const serverRelations = relations(servers, ({ one }) => ({
     references: [panels.id],
   }),
 }));
+
+export const emailVerifications = pgTable("emailVerifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  email: varchar("email", { length: 255 }).notNull(),
+  token: varchar("token", { length: 64}).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+
+});
+
+export const emailVerificationsRelations = relations(emailVerifications, ({ one }) => ({
+  user: one(users, {
+    fields: [emailVerifications.userId],
+    references: [users.id],
+  })
+}));
+
+export const passwordResets = pgTable("passwordResets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 64 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull()
+});
+
+export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
+  user: one(users, {
+    fields: [passwordResets.userId],
+    references: [users.id],
+  })
+}))
