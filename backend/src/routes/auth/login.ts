@@ -44,13 +44,15 @@ const router = new Elysia()
       session.expires = sessionData.expiresAt
       session.value = sessionToken;
 
+      if (result.totpSecret) return redirect(`${DOMAIN}/auth/mfa?panelContext=${panelContext}`, 302);
+
       return redirect(`${DOMAIN}/auth/callback?panelContext=${panelContext}`, 302)
     },
     {
       body: t.Object({
         username: t.String({ minLength: 3, maxLength: 31 }),
         password: t.String({ minLength: 6, maxLength: 255 }),
-        panelContext: t.Number()
+        panelContext: t.Optional(t.Number())
       }),
       response: {
         302: t.Undefined(),
@@ -85,13 +87,14 @@ const router = new Elysia()
       console.log(e)
       return status(400, { message: 'Something went wrong' });
     }
+
     return redirect(`${DOMAIN}/auth/callback?panelContext=${panelContext}`, 302)
   }, {
     body: t.Object({
       username: t.String({ minLength: 12, maxLength: 31 }),
       password: t.String({ minLength: 6, maxLength: 255 }),
       email: t.String({ format: 'email', minLength: 3, maxLength: 255 }),
-      panelContext: t.Number()
+      panelContext: t.Optional(t.Number())
     }),
     response: {
       302: t.Undefined(),
