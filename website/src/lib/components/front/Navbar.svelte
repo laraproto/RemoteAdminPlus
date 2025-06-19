@@ -9,10 +9,10 @@
     </a>
     <ul class="flex space-x-4 text-lg">
       <li>
-        <a href="/register">Register</a>
+        <a href="/auth/register">Register</a>
       </li>
       <li>
-        <a href="/login">Login</a>
+        <a href="/auth/login">Login</a>
       </li>
     </ul>
   </nav>
