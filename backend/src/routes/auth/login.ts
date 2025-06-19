@@ -150,7 +150,7 @@ const router = new Elysia()
         }),
       },
     },
-  );
+  ).get('/register', () => "What");
 
 function validateUsername(username: unknown): username is string {
   return (

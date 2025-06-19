@@ -7,6 +7,7 @@ import { COOKIE_DOMAIN, NODE_ENV } from "@modules/config";
 const app = new Elysia({
   cookie: {
     domain: COOKIE_DOMAIN,
+    httpOnly: true,
     secure: NODE_ENV !== "development",
   },
 })

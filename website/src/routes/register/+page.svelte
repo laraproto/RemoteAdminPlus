@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { PUBLIC_API_URL } from "$env/static/public";
 </script>
 
 <div class="flex min-h-screen items-center justify-center">
@@ -8,14 +9,18 @@
     <p class="mt-4">
       Gwa
     </p>
-    <form method="post" action="?/handle" use:enhance class="flex flex-col pt-4">
+    <form method="post" action="{PUBLIC_API_URL}/auth/register" use:enhance class="flex flex-col pt-4">
       <label class="flex flex-col items-start">
-        <span class="input-label">Username</span>
-        <input name="username-old" class="flex-grow"/>
+        <span class="input-label">Email</span>
+        <input name="email" type="email" class="flex-grow"/>
       </label>
       <label class="flex flex-col items-start">
-        <span class="input-label">New Username</span>
-        <input name="username-new" class="flex-grow"/>
+        <span class="input-label">Username</span>
+        <input name="username" class="flex-grow"/>
+      </label>
+      <label class="flex flex-col items-start">
+        <span class="input-label">Password</span>
+        <input name="password" type="password" class="flex-grow"/>
       </label>
       <button class="cursor-pointer">Submit</button>
     </form>
