@@ -12,17 +12,23 @@ export function encrypt(data: Uint8Array): Uint8Array {
   encrypted.write(cipher.update(data));
   encrypted.write(cipher.final());
   encrypted.write(cipher.getAuthTag());
-  return encrypted.bytes()
+  return encrypted.bytes();
 }
 
 export function decrypt(encrypted: Uint8Array): Uint8Array {
   if (encrypted.byteLength < 33) {
     throw new Error("Invalid data");
   }
-  const decipher = createDecipheriv("aes-128-gcm", APP_SECRET, encrypted.slice(0, 16));
+  const decipher = createDecipheriv(
+    "aes-128-gcm",
+    APP_SECRET,
+    encrypted.slice(0, 16),
+  );
   decipher.setAuthTag(encrypted.slice(encrypted.byteLength - 16));
   const decrypted = new DynamicBuffer(0);
-  decrypted.write(decipher.update(encrypted.slice(16, encrypted.byteLength - 16)));
+  decrypted.write(
+    decipher.update(encrypted.slice(16, encrypted.byteLength - 16)),
+  );
   decrypted.write(decipher.final());
   return decrypted.bytes();
 }

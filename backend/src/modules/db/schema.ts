@@ -20,6 +20,7 @@ const timeData = {
 //Developing this as a SaaS will make it easier to demo it, but it increases the scope significantly, I guess this is where I'm getting most of my 30 hours from
 export const panels = pgTable("panels", {
   id: serial("id").primaryKey(),
+  domain: varchar("domain", { length: 32}).notNull(),
   name: varchar("name", { length: 80 }).notNull(),
   description: varchar("description", { length: 8000 }),
   ownerId: integer("owner_id").references(() => users.id, {
@@ -359,17 +360,19 @@ export const emailVerifications = pgTable("emailVerifications", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   email: varchar("email", { length: 255 }).notNull(),
-  token: varchar("token", { length: 64}).notNull(),
+  token: varchar("token", { length: 64 }).notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-
 });
 
-export const emailVerificationsRelations = relations(emailVerifications, ({ one }) => ({
-  user: one(users, {
-    fields: [emailVerifications.userId],
-    references: [users.id],
-  })
-}));
+export const emailVerificationsRelations = relations(
+  emailVerifications,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [emailVerifications.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const passwordResets = pgTable("passwordResets", {
   id: serial("id").primaryKey(),
@@ -378,12 +381,12 @@ export const passwordResets = pgTable("passwordResets", {
     .references(() => users.id, { onDelete: "cascade" }),
   token: varchar("token", { length: 64 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
-  expiresAt: timestamp("expires_at").notNull()
+  expiresAt: timestamp("expires_at").notNull(),
 });
 
 export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
   user: one(users, {
     fields: [passwordResets.userId],
     references: [users.id],
-  })
-}))
+  }),
+}));

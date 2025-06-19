@@ -4,6 +4,7 @@
   "license": "GPL-3.0-or-later",
   "private": true,
   "scripts": {
+    "dev": "bun run --filter \"*\" dev",
     "lint": "eslint && prettier --check .",
     "format": "prettier --write ."
   },

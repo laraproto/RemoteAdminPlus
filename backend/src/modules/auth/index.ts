@@ -131,7 +131,7 @@ export async function setSession2FAVerified(sessionId: string): Promise<void> {
       expires_at: Math.floor(session.expiresAt.getTime() / 1000),
       two_factor_verified: true,
     }),
-  )
+  );
 }
 
 export interface SessionFlags {

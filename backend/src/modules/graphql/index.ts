@@ -12,7 +12,6 @@ export const yoga = createYoga({
   schema,
   plugins: [useCookies()],
   context: async (ctx) => ({
-
     ...initContextCache(),
 
     currentUser: validateUserAuth(

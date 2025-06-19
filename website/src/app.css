@@ -1,1 +1,23 @@
+@import url('https://fonts.bunny.net/css?family=inter:400');
 @import "tailwindcss";
+
+:root {
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    @apply bg-white text-pretty text-black dark:bg-zinc-900 dark:text-white;
+    background-size: 40%;
+}
+
+a {
+    @apply dark:text-white hover:text-sky-500 hover:underline;
+}
+
+.card {
+    @apply relative z-10 mx-auto flex max-w-screen-md flex-col items-center justify-center rounded-lg dark:bg-neutral-800/80 bg-neutral-200/80 p-8 text-center;
+}
+
+.center {
+    @apply flex items-center justify-center;
+}

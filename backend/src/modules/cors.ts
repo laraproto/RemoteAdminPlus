@@ -1,4 +1,4 @@
-import { cors as corsMiddleware } from '@elysiajs/cors';
+import { cors as corsMiddleware } from "@elysiajs/cors";
 
 import { API_DOMAIN, DOMAIN } from "@modules/config";
 

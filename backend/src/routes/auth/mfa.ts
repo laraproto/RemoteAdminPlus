@@ -11,7 +11,7 @@ import { eq } from "drizzle-orm";
 import { setSession2FAVerified } from "@modules/auth";
 
 export const mfa = new Elysia({ prefix: "/mfa", detail: { hide: true } })
-  .use(authMiddleware({ requiresMFA: false}))
+  .use(authMiddleware({ requiresMFA: false }))
   .get("/setup", async ({ user, session, status }) => {
     if (!user || !session) {
       return status(401, { message: "Unauthorized" });
@@ -22,7 +22,9 @@ export const mfa = new Elysia({ prefix: "/mfa", detail: { hide: true } })
     }
 
     if (session.twoFactorVerified) {
-      return status(400, { message: "2FA is already verified for this session." });
+      return status(400, {
+        message: "2FA is already verified for this session.",
+      });
     }
 
     const totpKey = new Uint8Array(20);
@@ -81,31 +83,47 @@ export const mfa = new Elysia({ prefix: "/mfa", detail: { hide: true } })
         code: t.String({ minLength: 6, maxLength: 6 }),
       }),
     },
-  ).post("/", async ({ body: { code, panelContext }, status, user, session, redirect }) => {
-  if (!user || !session) {
-    return status(401, { message: "Unauthorized" });
-  }
+  )
+  .post(
+    "/",
+    async ({
+      body: { code, panelContext },
+      status,
+      user,
+      session,
+      redirect,
+    }) => {
+      if (!user || !session) {
+        return status(401, { message: "Unauthorized" });
+      }
 
-  if (!user.totpSecret) {
-    return status(400, { message: "2FA is not set up for this user." });
-  }
+      if (!user.totpSecret) {
+        return status(400, { message: "2FA is not set up for this user." });
+      }
 
-  if (session.twoFactorVerified) {
-    return status(400, { message: "2FA is already verified for this session." });
-  }
+      if (session.twoFactorVerified) {
+        return status(400, {
+          message: "2FA is already verified for this session.",
+        });
+      }
 
-  const totpSecret = decrypt(decodeBase64(user.totpSecret));
+      const totpSecret = decrypt(decodeBase64(user.totpSecret));
 
-  if (!verifyTOTPWithGracePeriod(totpSecret, 30, 6, code, 30)) {
-    return status(400, { message: "Invalid code" });
-  }
+      if (!verifyTOTPWithGracePeriod(totpSecret, 30, 6, code, 30)) {
+        return status(400, { message: "Invalid code" });
+      }
 
-  await setSession2FAVerified(session.id);
+      await setSession2FAVerified(session.id);
 
-  return redirect(`${DOMAIN}/auth/callback?panelContext=${panelContext}`, 302)
-  }, {
-    body: t.Object({
-      code: t.String({ minLength: 6, maxLength: 6}),
-      panelContext: t.Optional(t.Number()),
-    }),
-  });
+      return redirect(
+        `${DOMAIN}/auth/callback?panelContext=${panelContext}`,
+        302,
+      );
+    },
+    {
+      body: t.Object({
+        code: t.String({ minLength: 6, maxLength: 6 }),
+        panelContext: t.Optional(t.Number()),
+      }),
+    },
+  );
