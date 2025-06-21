@@ -1,47 +1,106 @@
 <script lang="ts">
-  import { enhance } from '$app/forms';
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import * as Alert from '$lib/components/ui/alert/index'
+  import * as Card from '$lib/components/ui/card';
+  import { Button } from "$lib/components/ui/button";
+  import { Label } from '$lib/components/ui/label';
+  import { Input } from '$lib/components/ui/input';
+
+  import { AlertCircleIcon } from "@lucide/svelte";
+
+  import { type ParsableError, parse, type ValidationData } from "$lib/elysiaValidationParser";
+  import comm from '$lib/comm';
+  import type { AxiosError } from "axios";
+  import { getContext, onMount } from "svelte";
+  import { goto } from "$app/navigation";
+
+  const user = getContext('user');
+  let email = $state<string>();
+  let username = $state<string>();
+  let password = $state<string>();
+  let parsedErrors = $state<ParsableError[]>([])
+  let badRequestError = $state<string | null>(null);
+
+  onMount(() => {
+    if (user) goto('/panel');
+  })
+
+  async function formSubmit() {
+    parsedErrors = [];
+    badRequestError = null;
+    try {
+      const axiosResponse = await comm.postForm('auth/register', {
+        email,
+        username,
+        password,
+      })
+      if (axiosResponse.status === 200) await goto('/panel');
+    } catch (error) {
+      const axiosError: AxiosError = error as AxiosError;
+      switch (axiosError.response?.status) {
+        case 422: {
+          // Parse the validation errors
+          // assume already parsed json data
+          parsedErrors = parse(axiosError.response.data as ValidationData);
+          break;
+        }
+        case 400: {
+          const data = axiosError.response?.data as { message: string };
+          badRequestError = data.message;
+          break;
+        }
+        default: {
+          badRequestError = axiosError.response?.data as string;
+        }
+      }
+    }
+  }
 </script>
 
-<div class="flex min-h-screen items-center justify-center">
-  <div class="card">
-    <h1 class="text-2xl font-bold">Register for RemoteAdminPlus</h1>
-    <p class="mt-4">
-      Gwa
-    </p>
-    <form method="post" action="{PUBLIC_API_URL}/auth/register" use:enhance class="flex flex-col pt-4">
-      <label class="flex flex-col items-start">
-        <span class="input-label">Email</span>
-        <input name="email" type="email" class="flex-grow"/>
-      </label>
-      <label class="flex flex-col items-start">
-        <span class="input-label">Username</span>
-        <input name="username" class="flex-grow"/>
-      </label>
-      <label class="flex flex-col items-start">
-        <span class="input-label">Password</span>
-        <input name="password" type="password" class="flex-grow"/>
-      </label>
-      <button class="cursor-pointer">Submit</button>
-    </form>
-  </div>
+<div class="grid place-items-center h-[94vh]">
+  <Card.Root class="w-full max-w-sm">
+    <Card.Header>
+      <Card.Title>Register for RemoteAdminPlus</Card.Title>
+      <Card.Description>
+        Gwa
+      </Card.Description>
+    </Card.Header>
+    <Card.Content>
+      {#if parsedErrors.length > 0 || badRequestError !== null}
+        <Alert.Alert class="mt-4">
+          <AlertCircleIcon />
+          <Alert.Title>Validation Errors</Alert.Title>
+          <Alert.Description>
+            <ul class="list-inside list-disc text-sm">
+              {#each parsedErrors as error (error.field)}
+                <li>{error.field}: {error.message}</li>
+              {/each}
+              {#if badRequestError !== null}
+                <li>{badRequestError}</li>
+              {/if}
+            </ul>
+          </Alert.Description>
+        </Alert.Alert>
+      {/if}
+
+      <form>
+        <div class="flex flex-col gap-6">
+          <div class="grid gap-2">
+            <Label for="email">Email</Label>
+            <Input id="email" type="email" autocomplete required bind:value={email} />
+          </div>
+          <div class="grid gap-2">
+            <Label for="username">Username</Label>
+            <Input id="username" autocomplete required bind:value={username} />
+          </div>
+          <div class="grid gap-2">
+              <Label for="password">Password</Label>
+            <Input id="password" type="password" required bind:value={password} />
+          </div>
+        </div>
+      </form>
+    </Card.Content>
+    <Card.Footer>
+      <Button type="submit" class="w-full" onclick={formSubmit}>Register</Button>
+    </Card.Footer>
+  </Card.Root>
 </div>
-
-<style lang="postcss">
-    @reference "tailwindcss";
-    label {
-        @apply mb-4 flex flex-col text-left text-xl;
-    }
-
-    .input-label {
-        @apply mb-1 text-sm font-medium text-neutral-300;
-    }
-
-    input {
-        @apply w-full rounded-lg bg-neutral-950/50 p-2 outline outline-zinc-700 transition hover:outline-2 hover:outline-sky-500;
-    }
-
-    button {
-        @apply my-4 rounded-lg bg-neutral-950/50 p-2 outline outline-zinc-700 transition hover:outline-2 hover:outline-sky-500;
-    }
-</style>

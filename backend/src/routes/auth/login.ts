@@ -24,12 +24,6 @@ const router = new Elysia()
       status,
       redirect,
     }) => {
-      if (!validateUsername(username)) {
-        return status(400, {
-          message:
-            "Invalid username (min 3, max 31 characters, alphanumeric only)",
-        });
-      }
       if (!validatePassword(password)) {
         return status(400, {
           message: "Invalid password (min 6, max 255 characters)",
@@ -74,7 +68,7 @@ const router = new Elysia()
     },
     {
       body: t.Object({
-        username: t.String({ minLength: 3, maxLength: 31 }),
+        username: t.String({ minLength: 6, maxLength: 255 }),
         password: t.String({ minLength: 6, maxLength: 255 }),
         panelContext: t.Optional(t.Number()),
       }),
@@ -97,7 +91,7 @@ const router = new Elysia()
       if (!validateUsername(username)) {
         return status(400, {
           message:
-            "Invalid username (min 3, max 31 characters, alphanumeric only)",
+            "Invalid username (min 6, max 31 characters, alphanumeric only)",
         });
       }
       if (!validatePassword(password)) {
@@ -138,7 +132,7 @@ const router = new Elysia()
     },
     {
       body: t.Object({
-        username: t.String({ minLength: 12, maxLength: 31 }),
+        username: t.String({ minLength: 6, maxLength: 31 }),
         password: t.String({ minLength: 6, maxLength: 255 }),
         email: t.String({ format: "email", minLength: 3, maxLength: 255 }),
         panelContext: t.Optional(t.Number()),
@@ -155,8 +149,8 @@ const router = new Elysia()
 function validateUsername(username: unknown): username is string {
   return (
     typeof username === "string" &&
-    username.length >= 12 &&
-    username.length <= 31 &&
+    username.length >= 6 &&
+    username.length <= 255 &&
     /^[a-z0-9_-]+$/.test(username)
   );
 }

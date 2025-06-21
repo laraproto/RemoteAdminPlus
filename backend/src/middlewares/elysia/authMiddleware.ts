@@ -11,8 +11,8 @@ const authMiddleware = <T extends string>(
     name: "authGuards",
     seed: config,
   })
-    .resolve(async ({ cookie: { session } }) => {
-      const sessionToken = session.value ?? "";
+    .resolve(async ({ cookie: { session }, headers }) => {
+      const sessionToken = session.value ?? headers["authorization"] ?? "";
 
       const currentSession: Session | null =
         await authSystem.validateSessionToken(sessionToken);
