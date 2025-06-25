@@ -19,4 +19,4 @@ Then you can run all of the components at once by running `bun run dev` in monor
 
 ## Production
 
-Eventually the goal is to set this all up with docker compose, it's a bit far away from that right now, but i've made worse honestly
+Technically there's 2 ways of running this in production, by using the split envs and valkey and postgresql on host, or by using the docker compose file, to do so you can copy .env.example to .env, fill in the required values and step 3 profit??, and by that i mean run `docker compose up -d`

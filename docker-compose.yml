@@ -1,0 +1,86 @@
+name: remoteadminplus
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
+
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  valkey:
+    image: valkey/valkey:8-alpine
+
+  traefik:
+    image: traefik:v3.4
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:8080"
+    ports:
+      - "${PROXY_PORT:?Proxy Port Required}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  migrate:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    build: &build
+      context: .
+      args:
+        API_URL: ${API_URL}
+        PUBLIC_API_URL: ${PUBLIC_API_URL}
+        URL: ${URL}
+        PUBLIC_URL: ${PUBLIC_URL}
+        DOMAIN: ${DOMAIN}
+        PUBLIC_DOMAIN: ${PUBLIC_DOMAIN}
+    environment: &env
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    env_file:
+      - .env
+    working_dir: /app/backend
+    command: ["bun", "run", "db:push"]
+
+  api:
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    build: *build
+    restart: on-failure
+    environment: *env
+    env_file:
+      - .env
+    working_dir: /app/backend
+    command: ["bun", "run", "start"]
+    expose:
+      - "3000"
+    labels:
+      - "traefik.http.routers.api.rule=Host(`${API_DOMAIN}`)"
+
+  website:
+    depends_on:
+      api:
+        condition: service_started
+    build: *build
+    restart: on-failure
+    environment: *env
+    env_file:
+      - .env
+    working_dir: /app/website
+    command: ["bun", "--bun", "./build"]
+    expose:
+      - "3000"
+    labels:
+      - "traefik.http.routers.website.rule=Host(`${DOMAIN}`)"
+
+volumes:
+  postgres-data:

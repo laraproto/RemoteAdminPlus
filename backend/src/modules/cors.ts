@@ -1,7 +1,8 @@
 import { cors as corsMiddleware } from "@elysiajs/cors";
 
-import { API_DOMAIN, DOMAIN } from "@modules/config";
+import { API_URL, URL } from "@modules/config";
 
 export const strictCors = corsMiddleware({
-  origin: [API_DOMAIN, DOMAIN],
+  origin: [API_URL, URL],
+  methods: ["GET", "POST"],
 });

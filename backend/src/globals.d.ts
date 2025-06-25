@@ -1,8 +1,8 @@
 declare module "bun" {
   interface Env {
     APP_NAME: string;
-    API_DOMAIN: string;
-    DOMAIN: string;
+    API_URL: string;
+    URL: string;
     HOSTNAME: string;
     PORT: string;
     DATABASE_URL: string;

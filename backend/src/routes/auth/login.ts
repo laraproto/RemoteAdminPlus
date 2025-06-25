@@ -4,7 +4,7 @@ import { Elysia, t } from "elysia";
 
 import * as auth from "@modules/auth";
 import { db, users } from "@modules/db";
-import { DOMAIN } from "@modules/config";
+import { URL } from "@modules/config";
 
 const router = new Elysia()
   .guard({
@@ -59,10 +59,10 @@ const router = new Elysia()
       session.value = sessionToken;
 
       if (result.totpSecret)
-        return redirect(`${DOMAIN}/auth/mfa?panelContext=${panelContext}`, 302);
+        return redirect(`${URL}/auth/mfa?panelContext=${panelContext}`, 302);
 
       return redirect(
-        `${DOMAIN}/auth/callback?panelContext=${panelContext}`,
+        `${URL}/auth/callback?panelContext=${panelContext}`,
         302,
       );
     },
@@ -126,7 +126,7 @@ const router = new Elysia()
       }
 
       return redirect(
-        `${DOMAIN}/auth/callback?panelContext=${panelContext}`,
+        `${URL}/auth/callback?panelContext=${panelContext}`,
         302,
       );
     },

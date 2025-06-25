@@ -4,9 +4,9 @@ export const NODE_ENV = Bun.env.NODE_ENV ?? "development";
 
 export const APP_NAME = Bun.env.APP_NAME ?? "RemoteAdminPlus";
 
-export const API_DOMAIN = Bun.env.API_DOMAIN ?? "http://localhost:3000";
+export const API_URL = Bun.env.API_URL ?? "http://localhost:3000";
 
-export const DOMAIN = Bun.env.DOMAIN ?? "http://localhost:5173";
+export const URL = Bun.env.URL ?? "http://localhost:5173";
 
 export const COOKIE_DOMAIN = Bun.env.COOKIE_DOMAIN ?? ".localhost";
 

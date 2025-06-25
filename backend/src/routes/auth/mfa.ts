@@ -4,7 +4,7 @@ import authMiddleware from "@middlewares/elysia/authMiddleware";
 import { encodeBase64, decodeBase64 } from "@oslojs/encoding";
 import { renderSVG } from "uqr";
 import { createTOTPKeyURI, verifyTOTPWithGracePeriod } from "@oslojs/otp";
-import { APP_NAME, DOMAIN } from "@modules/config";
+import { APP_NAME, URL } from "@modules/config";
 import { db, users } from "@modules/db";
 import { decrypt, encrypt } from "@modules/crypto";
 import { eq } from "drizzle-orm";
@@ -116,7 +116,7 @@ export const mfa = new Elysia({ prefix: "/mfa", detail: { hide: true } })
       await setSession2FAVerified(session.id);
 
       return redirect(
-        `${DOMAIN}/auth/callback?panelContext=${panelContext}`,
+        `${URL}/auth/callback?panelContext=${panelContext}`,
         302,
       );
     },
