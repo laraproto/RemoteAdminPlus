@@ -4,6 +4,7 @@ RemoteAdminPlus is an attempt at an open source self-hostable SaaS to improve th
 
 ## Roadmap
 - [ ] Authentication (like 70% of the way there right now)
+  - [ ] Figure out auth callbacks and how I would go about resolving panel redirects
 - [ ] Multi-factor authentication
 - [ ] Panel creation
 - [ ] Panel subdomains
