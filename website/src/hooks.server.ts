@@ -2,7 +2,6 @@ import type { Handle } from "@sveltejs/kit";
 import comm from "$lib/comm";
 
 export const handle: Handle = async ({ event, resolve }) => {
-
   try {
     if (!event.cookies.get("session")) return resolve(event);
     const user = await comm.get("/auth/me", {
@@ -19,8 +18,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     console.error("Error fetching user data:", error);
     event.locals.user = null;
   }
-
-
 
   return resolve(event);
 };

@@ -80,7 +80,7 @@ services:
     expose:
       - "3000"
     labels:
-      - "traefik.http.routers.website.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.website.rule=Host(`${DOMAIN}`) || HostRegexp(`*.${DOMAIN}`)"
 
 volumes:
   postgres-data:

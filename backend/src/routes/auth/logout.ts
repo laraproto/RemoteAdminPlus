@@ -5,7 +5,7 @@ import { URL } from "@modules/config";
 
 const router = new Elysia()
   .use(authMiddleware({ prefix: "wawa" }))
-  .post("/logout", async ({ cookie, session, user, status, redirect }) => {
+  .get("/logout", async ({ cookie, session, user, status, redirect }) => {
     if (!session || !user) {
       return status(401, { message: "Unauthorized" });
     }
