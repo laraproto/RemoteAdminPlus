@@ -5,16 +5,25 @@ import { URL } from "@modules/config";
 
 const router = new Elysia()
   .use(authMiddleware({ prefix: "wawa" }))
-  .get("/logout", async ({ cookie, session, user, status, redirect }) => {
-    if (!session || !user) {
-      return status(401, { message: "Unauthorized" });
-    }
+  .get(
+    "/logout",
+    async ({
+      cookie: { session: session_cookie },
+      session,
+      user,
+      status,
+      redirect,
+    }) => {
+      if (!session || !user) {
+        return status(401, { message: "Unauthorized" });
+      }
 
-    // Invalidate the session by deleting it
-    await invalidateSession(session.id, user.id);
-    cookie.session.value = undefined;
+      // Invalidate the session by deleting it
+      await invalidateSession(session.id, user.id);
+      session_cookie.remove();
 
-    return redirect(`${URL}`, 302);
-  });
+      return redirect(`${URL}`, 302);
+    },
+  );
 
 export default router;

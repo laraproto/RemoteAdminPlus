@@ -9,7 +9,7 @@
 </script>
 
 <header>
-  <nav class="flex items-center justify-between">
+  <nav class="flex flex-row items-center justify-between">
     <a href="/" class="p-3 text-xl"> RemoteAdminPlus </a>
     <NavigationMenu.Root class="pr-8">
       <NavigationMenu.List>
@@ -22,24 +22,27 @@
                   <Badge class="bg-pink-400">User Rank</Badge>
                 </div>
                 <Separator class="mb-2" />
-                <NavigationMenu.Link>
-                  <a href="/profile">Profile</a>
+                <NavigationMenu.Link href="/profile">
+                  Profile
                 </NavigationMenu.Link>
                 <Separator class="my-2 w-full" />
-                <NavigationMenu.Link class="mb-2">
-                  <a href="{PUBLIC_API_URL}/auth/logout">Logout</a>
+                <NavigationMenu.Link
+                  class="mb-2"
+                  href="{PUBLIC_API_URL}/auth/logout"
+                >
+                  Logout
                 </NavigationMenu.Link>
               </div>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
         {:else}
           <NavigationMenu.Item>
-            <NavigationMenu.Link>
-              <a href="/auth/register">Register</a>
+            <NavigationMenu.Link href="/auth/register">
+              Register
             </NavigationMenu.Link>
-            <NavigationMenu.Link>
-              <a href="/auth/login">Login</a>
-            </NavigationMenu.Link>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <NavigationMenu.Link href="/auth/login">Login</NavigationMenu.Link>
           </NavigationMenu.Item>
         {/if}
       </NavigationMenu.List>
