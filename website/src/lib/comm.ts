@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { PUBLIC_API_URL } from "$env/static/public";
+import axios from "axios";
+import { PUBLIC_URL } from "$env/static/public";
 
 const api = axios.create({
-  baseURL: PUBLIC_API_URL ?? "http://localhost:3000",
+  baseURL: PUBLIC_URL,
   timeout: 5000,
-  withCredentials: true
+  withCredentials: true,
 });
 
 export default api;

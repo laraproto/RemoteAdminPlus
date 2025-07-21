@@ -27,5 +27,8 @@
     "website",
     "email",
     "backend"
+  ],
+  "trustedDependencies": [
+    "@tailwindcss/oxide"
   ]
 }

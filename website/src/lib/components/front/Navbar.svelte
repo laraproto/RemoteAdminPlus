@@ -26,10 +26,7 @@
                   Profile
                 </NavigationMenu.Link>
                 <Separator class="my-2 w-full" />
-                <NavigationMenu.Link
-                  class="mb-2"
-                  href="{PUBLIC_API_URL}/auth/logout"
-                >
+                <NavigationMenu.Link class="mb-2" href="/api/auth/logout">
                   Logout
                 </NavigationMenu.Link>
               </div>

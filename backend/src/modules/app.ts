@@ -11,6 +11,7 @@ const app = new Elysia({
     httpOnly: true,
     secure: NODE_ENV !== "development",
   },
+  prefix: "/api",
 })
   .use(routes)
   .get("/graphql", async ({ request }) => yoga.fetch(request), {

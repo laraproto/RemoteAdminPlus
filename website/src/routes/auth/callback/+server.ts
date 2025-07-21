@@ -11,7 +11,7 @@ export const GET: RequestHandler = async ({ locals: { user }, url }) => {
   if (!panelContext || panelContext === "undefined")
     return redirect(302, `${PUBLIC_URL}`);
 
-  const axiosResponse = await comm.get(`panel/query/${panelContext}`);
+  const axiosResponse = await comm.get(`/api/panel/query/${panelContext}`);
 
   const panel = axiosResponse.data as {
     id: number;

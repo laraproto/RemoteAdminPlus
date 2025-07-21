@@ -4,5 +4,4 @@ import { API_URL, URL } from "@modules/config";
 
 export const strictCors = corsMiddleware({
   origin: [API_URL, URL],
-  methods: ["GET", "POST"],
 });

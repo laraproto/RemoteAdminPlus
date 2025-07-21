@@ -1,37 +1,41 @@
 <script lang="ts">
-  import * as Alert from '$lib/components/ui/alert/index'
-  import * as Card from '$lib/components/ui/card';
+  import * as Alert from "$lib/components/ui/alert/index";
+  import * as Card from "$lib/components/ui/card";
   import { Button } from "$lib/components/ui/button";
-  import { Label } from '$lib/components/ui/label';
-  import { Input } from '$lib/components/ui/input';
+  import { Label } from "$lib/components/ui/label";
+  import { Input } from "$lib/components/ui/input";
 
   import { AlertCircleIcon } from "@lucide/svelte";
 
-  import { type ParsableError, parse, type ValidationData } from "$lib/elysiaValidationParser";
-  import comm from '$lib/comm';
+  import {
+    type ParsableError,
+    parse,
+    type ValidationData,
+  } from "$lib/elysiaValidationParser";
+  import comm from "$lib/comm";
   import type { AxiosError } from "axios";
   import { getContext, onMount } from "svelte";
   import { goto } from "$app/navigation";
 
-  const user = getContext('user');
+  const user = getContext("user");
   let username = $state<string>();
   let password = $state<string>();
-  let parsedErrors = $state<ParsableError[]>([])
+  let parsedErrors = $state<ParsableError[]>([]);
   let badRequestError = $state<string | null>(null);
 
   onMount(() => {
-    if (user) goto('/panel');
-  })
+    if (user) goto("/panel");
+  });
 
   async function formSubmit() {
     parsedErrors = [];
     badRequestError = null;
     try {
-      const axiosResponse = await comm.postForm('auth/login', {
+      const axiosResponse = await comm.post("/api/auth/login", {
         username,
         password,
-      })
-      if (axiosResponse.status === 200) await goto('/panel');
+      });
+      if (axiosResponse.status === 200) await goto("/panel");
     } catch (error) {
       const axiosError: AxiosError = error as AxiosError;
       switch (axiosError.response?.status) {
@@ -54,13 +58,11 @@
   }
 </script>
 
-<div class="grid place-items-center h-[94vh]">
+<div class="grid h-[94vh] place-items-center">
   <Card.Root class="w-full max-w-sm">
     <Card.Header>
       <Card.Title>Login</Card.Title>
-      <Card.Description>
-        Gwa
-      </Card.Description>
+      <Card.Description>Gwa</Card.Description>
     </Card.Header>
     <Card.Content>
       {#if parsedErrors.length > 0 || badRequestError !== null}
@@ -88,7 +90,12 @@
           </div>
           <div class="grid gap-2">
             <Label for="password">Password</Label>
-            <Input id="password" type="password" required bind:value={password} />
+            <Input
+              id="password"
+              type="password"
+              required
+              bind:value={password}
+            />
           </div>
         </div>
       </form>

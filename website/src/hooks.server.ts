@@ -4,7 +4,7 @@ import comm from "$lib/comm";
 export const handle: Handle = async ({ event, resolve }) => {
   try {
     if (!event.cookies.get("session")) return resolve(event);
-    const user = await comm.get("/auth/me", {
+    const user = await comm.get("/api/auth/me", {
       headers: {
         Authorization: event.cookies.get("session") ?? "",
       },
