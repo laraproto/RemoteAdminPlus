@@ -86,7 +86,12 @@
         <div class="flex flex-col gap-6">
           <div class="grid gap-2">
             <Label for="username">Username/Email</Label>
-            <Input id="username" autocomplete required bind:value={username} />
+            <Input
+              id="username"
+              autocomplete="nickname"
+              required
+              bind:value={username}
+            />
           </div>
           <div class="grid gap-2">
             <Label for="password">Password</Label>

@@ -91,14 +91,19 @@
             <Input
               id="email"
               type="email"
-              autocomplete
+              autocomplete="email"
               required
               bind:value={email}
             />
           </div>
           <div class="grid gap-2">
             <Label for="username">Username</Label>
-            <Input id="username" autocomplete required bind:value={username} />
+            <Input
+              id="username"
+              autocomplete="nickname"
+              required
+              bind:value={username}
+            />
           </div>
           <div class="grid gap-2">
             <Label for="password">Password</Label>

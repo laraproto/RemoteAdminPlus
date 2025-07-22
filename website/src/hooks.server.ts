@@ -1,5 +1,5 @@
 import type { Handle } from "@sveltejs/kit";
-import comm from "$lib/comm";
+import comm from "$lib/server/comm-server";
 
 export const handle: Handle = async ({ event, resolve }) => {
   try {
