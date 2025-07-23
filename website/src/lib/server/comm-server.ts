@@ -1,8 +1,8 @@
 import axios from "axios";
-import { env } from "$env/dynamic/private";
+import { SERVER_API_URL, API_URL } from "$env/static/private";
 
 const api = axios.create({
-  baseURL: env.SERVER_API_URL === "" ? env.API_URL : env.SERVER_API_URL,
+  baseURL: SERVER_API_URL === "" ? API_URL : SERVER_API_URL,
   timeout: 5000,
   withCredentials: true,
 });

@@ -2,6 +2,7 @@ FROM oven/bun:debian AS build
 LABEL authors="laraproto"
 
 ARG API_URL
+ARG SERVER_API_URL
 ARG PUBLIC_API_URL
 ARG URL
 ARG PUBLIC_URL

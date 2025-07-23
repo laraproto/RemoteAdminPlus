@@ -37,7 +37,26 @@
         username,
         password,
       });
-      if (axiosResponse.status === 200) await goto("/panel");
+      switch (axiosResponse.status) {
+        case 204: {
+          goto("/panel", {
+            invalidateAll: true,
+          });
+          break;
+        }
+        case 200: {
+          const data = axiosResponse.data as { id: number; domain: string };
+          goto(`/panel/${data.id}`, {
+            invalidateAll: true,
+          });
+          break;
+        }
+        default: {
+          goto("/panel", {
+            invalidateAll: true,
+          });
+        }
+      }
     } catch (error) {
       const axiosError: AxiosError = error as AxiosError;
       switch (axiosError.response?.status) {

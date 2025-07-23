@@ -1,6 +1,5 @@
-import { error, redirect } from "@sveltejs/kit";
+import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { PUBLIC_URL } from "$env/static/public";
 import comm from "$lib/comm";
 
 export const GET: RequestHandler = async ({ locals: { user }, url }) => {
@@ -9,7 +8,9 @@ export const GET: RequestHandler = async ({ locals: { user }, url }) => {
   const panelContext = url.searchParams.get("panelContext");
 
   if (!panelContext || panelContext === "undefined")
-    return redirect(302, `${PUBLIC_URL}`);
+    return new Response(null, {
+      status: 204,
+    });
 
   const axiosResponse = await comm.get(`/api/panel/query/${panelContext}`);
 
@@ -18,5 +19,7 @@ export const GET: RequestHandler = async ({ locals: { user }, url }) => {
     domain: string;
   };
 
-  return redirect(302, `/panel/${panel.id}`);
+  return json(panel, {
+    status: 200,
+  });
 };

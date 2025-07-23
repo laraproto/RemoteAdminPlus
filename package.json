@@ -29,6 +29,9 @@
     "backend"
   ],
   "trustedDependencies": [
-    "@tailwindcss/oxide"
+    "@remoteadminplus/website",
+    "@tailwindcss/oxide",
+    "esbuild",
+    "sharp"
   ]
 }

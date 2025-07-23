@@ -1,11 +1,10 @@
 <script lang="ts">
-  import { getContext } from "svelte";
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
-  import { PUBLIC_API_URL } from "$env/static/public";
+  import type { User } from "../../../app";
 
-  const user = getContext("user");
+  let { user }: { user: User | null } = $props();
 </script>
 
 <header>
@@ -15,7 +14,7 @@
       <NavigationMenu.List>
         {#if user}
           <NavigationMenu.Item>
-            <NavigationMenu.Trigger>Lara</NavigationMenu.Trigger>
+            <NavigationMenu.Trigger>{user.username}</NavigationMenu.Trigger>
             <NavigationMenu.Content>
               <div class="mb-2 flex flex-col items-center">
                 <div class="flex items-center justify-center py-2">

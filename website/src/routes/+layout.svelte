@@ -8,13 +8,13 @@
   let { children, data }: LayoutProps = $props();
 
   if (data.user !== undefined) {
-    setContext('user', () => data.user)
+    setContext("user", data.user);
   }
 </script>
 
 <ModeWatcher />
 <main>
-  <Navbar />
+  <Navbar user={data.user} />
   <article>
     {@render children()}
   </article>

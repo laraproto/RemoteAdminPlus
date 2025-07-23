@@ -15,6 +15,8 @@ export const handle: Handle = async ({ event, resolve }) => {
       emailVerified: boolean;
     } | null;
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((error as any).status === 401) return resolve(event);
     console.error("Error fetching user data:", error);
     event.locals.user = null;
   }

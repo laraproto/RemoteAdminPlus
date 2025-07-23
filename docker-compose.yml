@@ -44,6 +44,7 @@ services:
         PUBLIC_URL: ${PUBLIC_URL}
         DOMAIN: ${DOMAIN}
         PUBLIC_DOMAIN: ${PUBLIC_DOMAIN}
+        SERVER_API_URL: ${SERVER_API_URL}
     environment: &env
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
