@@ -9,26 +9,30 @@
 
 <header>
   <nav class="flex flex-row items-center justify-between">
-    <a href="/" class="p-3 text-xl"> RemoteAdminPlus </a>
+    <a href={user ? "/panel" : "/"} class="p-3 text-xl"> RemoteAdminPlus </a>
     <NavigationMenu.Root class="pr-8">
       <NavigationMenu.List>
         {#if user}
           <NavigationMenu.Item>
             <NavigationMenu.Trigger>{user.username}</NavigationMenu.Trigger>
             <NavigationMenu.Content>
-              <div class="mb-2 flex flex-col items-center">
-                <div class="flex items-center justify-center py-2">
-                  <Badge class="bg-pink-400">User Rank</Badge>
-                </div>
-                <Separator class="mb-2" />
-                <NavigationMenu.Link href="/profile">
-                  Profile
-                </NavigationMenu.Link>
-                <Separator class="my-2 w-full" />
-                <NavigationMenu.Link class="mb-2" href="/api/auth/logout">
-                  Logout
-                </NavigationMenu.Link>
-              </div>
+              <ul class="grid w-[100px] gap-4 p-2">
+                <li>
+                  <NavigationMenu.Link
+                    href="/profile"
+                    class="flex-row items-center gap-2"
+                  >
+                    Profile
+                  </NavigationMenu.Link>
+
+                  <NavigationMenu.Link
+                    href="/api/auth/logout"
+                    class="flex-row items-center gap-2"
+                  >
+                    Logout
+                  </NavigationMenu.Link>
+                </li>
+              </ul>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
         {:else}
