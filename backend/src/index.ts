@@ -1,11 +1,13 @@
-import app from "@modules/app";
-import { PORT, HOSTNAME } from "@modules/config";
+import { HOSTNAME, PORT } from "@modules/config";
+import { Hono } from "hono";
+import router from "./routes";
 
-app.listen({
+const app = new Hono();
+
+app.route("/", router);
+
+export default {
+  host: HOSTNAME,
   port: PORT,
-  hostname: HOSTNAME,
-});
-
-console.log(
-  `Backend is running at ${app.server?.hostname}:${app.server?.port}`,
-);
+  fetch: app.fetch,
+};

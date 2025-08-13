@@ -1,6 +1,8 @@
-import { Elysia } from "elysia";
+import { Hono } from "hono";
+import { trpcRouter } from "./trpc";
 
-import { auth as authRouter } from "@routes/auth";
-import { panel as panelRouter } from "@routes/panel";
+const router = new Hono().basePath("/api");
 
-export const routes = new Elysia({}).use(authRouter).use(panelRouter);
+router.route("", trpcRouter);
+
+export default router;

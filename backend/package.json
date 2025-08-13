@@ -1,8 +1,11 @@
 {
   "name": "@remotadminplus/backend",
   "version": "1.0.50",
+  "exports": {
+    ".": "./src/modules/trpc/index.ts"
+  },
   "scripts": {
-    "dev": "NODE_ENV=development bun run --watch src/index.ts",
+    "dev": "NODE_ENV=development bun run --hot src/index.ts",
     "start": "NODE_ENV=production bun run src/index.ts",
     "db:push": "bun --bun drizzle-kit push",
     "db:generate": "bun --bun drizzle-kit generate",
@@ -10,27 +13,26 @@
     "db:studio": "bun drizzle-kit studio"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.3.3",
+    "@hono/trpc-server": "^0.4.0",
     "@oslojs/binary": "^1.0.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "@oslojs/otp": "^1.1.0",
-    "@pothos/core": "^4.6.2",
-    "@whatwg-node/server-plugin-cookies": "^1.0.5",
-    "dotenv": "^16.5.0",
+    "@trpc/client": "^11.4.4",
+    "@trpc/server": "^11.4.4",
     "drizzle-kit": "^0.31.1",
     "drizzle-orm": "^0.44.1",
-    "drizzle-typebox": "^0.3.3",
-    "elysia": "latest",
-    "graphql-yoga": "^5.13.5",
+    "drizzle-zod": "^0.8.3",
+    "hono": "^4.9.1",
     "ioredis": "^5.6.1",
     "jose": "^6.0.11",
     "pg": "^8.16.0",
-    "uqr": "^0.1.2"
+    "uqr": "^0.1.2",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@types/pg": "^8.15.3",
-    "bun-types": "latest"
+    "@types/bun": "latest"
   },
   "module": "src/index.js"
 }
