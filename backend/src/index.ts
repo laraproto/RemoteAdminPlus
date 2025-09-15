@@ -1,4 +1,4 @@
-import { HOSTNAME, PORT } from "@modules/config";
+import { HOSTNAME, PORT } from "#modules/config";
 import { Hono } from "hono";
 import router from "./routes";
 

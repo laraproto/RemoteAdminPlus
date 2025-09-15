@@ -1,22 +1,20 @@
 import type { Handle } from "@sveltejs/kit";
-import comm from "$lib/server/comm-server";
+import client from "$lib/trpc.server";
+import type { TRPCClientError } from "@trpc/client";
+import type { AppRouter } from "@remoteadminplus/backend/trpc";
 
 export const handle: Handle = async ({ event, resolve }) => {
   try {
     if (!event.cookies.get("session")) return resolve(event);
-    const user = await comm.get("/api/auth/me", {
-      headers: {
-        Authorization: event.cookies.get("session") ?? "",
-      },
-    });
+    const user = await client.authed.me.query();
     event.locals.user = user.data as {
-      id: number;
+      uuid: string;
       username: string;
       emailVerified: boolean;
     } | null;
   } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((error as any).status === 401) return resolve(event);
+    if ((error as TRPCClientError<AppRouter>).message === "UNAUTHORIZED")
+      return resolve(event);
     console.error("Error fetching user data:", error);
     event.locals.user = null;
   }

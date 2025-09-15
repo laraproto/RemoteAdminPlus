@@ -1,15 +1,18 @@
 <script lang="ts">
+  import { resolve } from "$app/paths";
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
-  import type { User } from "../../../app";
+  import type { User } from "$lib/types/common";
 
   let { user }: { user: User | null } = $props();
 </script>
 
 <header>
   <nav class="flex flex-row items-center justify-between">
-    <a href={user ? "/panel" : "/"} class="p-3 text-xl"> RemoteAdminPlus </a>
+    <a href={resolve(user ? "/panel/" : "/")} class="p-3 text-xl">
+      RemoteAdminPlus
+    </a>
     <NavigationMenu.Root class="pr-8">
       <NavigationMenu.List>
         {#if user}

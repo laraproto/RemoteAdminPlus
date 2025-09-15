@@ -1,13 +1,19 @@
-import { Hono } from "hono";
-import { trpcServer } from "@hono/trpc-server";
-import { appRouter } from "@modules/trpc";
+import {
+  authedProcedure,
+  publicProcedure,
+  router,
+} from "#modules/trpc/index.ts";
+import { z } from "zod";
 
-export const trpcRouter = new Hono();
+const authedRouter = router({
+  me: authedProcedure.query(({ ctx }) => ctx.user),
+});
 
-trpcRouter.use(
-  "/trpc/*",
-  trpcServer({
-    endpoint: "/api/trpc",
-    router: appRouter,
+export const appRouter = router({
+  hello: publicProcedure.input(z.string().nullish()).query(({ input, ctx }) => {
+    return `Hello ${input ?? "world"}! Your session is ${JSON.stringify(ctx.session)}`;
   }),
-);
+  authed: authedRouter,
+});
+
+export type AppRouter = typeof appRouter;

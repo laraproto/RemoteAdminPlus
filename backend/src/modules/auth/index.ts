@@ -1,145 +1,82 @@
-import { redis } from "@modules/redis";
-import {
-  encodeBase32LowerCaseNoPadding,
-  encodeHexLowerCase,
-} from "@oslojs/encoding";
+import { eq } from "drizzle-orm";
 import { sha256 } from "@oslojs/crypto/sha2";
+import { encodeBase64url, encodeHexLowerCase } from "@oslojs/encoding";
+import { db, schema } from "#modules/db";
 
-export function generateSessionToken(): string {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  return encodeBase32LowerCaseNoPadding(bytes);
+const DAY_IN_MS = 1000 * 60 * 60 * 24;
+
+export function generateSessionToken() {
+  const bytes = crypto.getRandomValues(new Uint8Array(18));
+  const token = encodeBase64url(bytes);
+  return token;
 }
 
-export async function createSession(
-  token: string,
-  flags?: SessionFlags,
-  userId?: number,
-): Promise<Session> {
+export async function setSessionUser(sessionId: string, userId: string) {
+  await db
+    .update(schema.session)
+    .set({ userId, expiresAt: new Date(Date.now() + DAY_IN_MS * 30) })
+    .where(eq(schema.session.id, sessionId));
+}
+
+export async function createSession(token: string, userId?: string) {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const session: Session = {
     id: sessionId,
-    userId,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-    twoFactorVerified: flags?.twoFactorVerified ?? false,
+    userId: null,
+    expiresAt: new Date(Date.now() + DAY_IN_MS * 1),
   };
-
-  await redis.set(
-    `session:${session.id}`,
-    JSON.stringify({
-      id: session.id,
-      user_id: session.userId,
-      expires_at: Math.floor(session.expiresAt.getTime() / 1000),
-      two_factor_verified: session.twoFactorVerified,
-    }),
-  );
-
-  await redis.expireat(
-    `session:${session.id}`,
-    Math.floor(session.expiresAt.getTime() / 1000),
-  );
-
-  await redis.sadd(`user_sessions:${userId}`, session.id);
-
+  if (userId) {
+    session.userId = userId;
+  }
+  await db.insert(schema.session).values(session);
   return session;
 }
 
-export async function validateSessionToken(
-  token: string,
-): Promise<Session | null> {
+export async function validateSessionToken(token: string) {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-  const item = await redis.get(`session:${sessionId}`);
-  if (item === null) {
-    return null;
+  const result = await db.query.session.findFirst({
+    where: (sessionTable, { eq }) => eq(sessionTable.id, sessionId),
+    with: {
+      user: true,
+    },
+  });
+  if (!result) {
+    return { session: null, user: null };
+  }
+  const session = result;
+  const user = schema.userSelectMinimal.safeParse(result.user).data ?? null;
+
+  const sessionExpired = Date.now() >= session.expiresAt.getTime();
+  if (sessionExpired) {
+    await db.delete(schema.session).where(eq(schema.session.id, session.id));
+    return { session: null, user: null };
   }
 
-  const result = JSON.parse(item);
-  const session: Session = {
-    id: result.id,
-    userId: result.user_id,
-    expiresAt: new Date(result.expires_at * 1000),
-    twoFactorVerified: result.two_factor_verified,
-  };
-  if (Date.now() >= session.expiresAt.getTime()) {
-    await redis.del(`session:${sessionId}`);
-    await redis.srem(`user_sessions:${session.userId}`, sessionId);
-    return null;
+  const renewSession =
+    Date.now() >= session.expiresAt.getTime() - DAY_IN_MS * 15 &&
+    session.userId !== null;
+  if (renewSession) {
+    if (session.userId)
+      session.expiresAt = new Date(Date.now() + DAY_IN_MS * 30);
+    await db
+      .update(schema.session)
+      .set({ expiresAt: session.expiresAt })
+      .where(eq(schema.session.id, session.id));
   }
-  if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
-    session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
-    await redis.set(
-      `session:${session.id}`,
-      JSON.stringify({
-        id: session.id,
-        user_id: session.userId,
-        expires_at: Math.floor(session.expiresAt.getTime() / 1000),
-        two_factor_verified: session.twoFactorVerified,
-      }),
-    );
 
-    await redis.expireat(
-      `session:${session.id}`,
-      Math.floor(session.expiresAt.getTime() / 1000),
-    );
-  }
-  return session;
+  return { session, user };
 }
 
-export async function invalidateSession(
-  sessionId: string,
-  userId: number,
-): Promise<void> {
-  await redis.del(`session:${sessionId}`);
-  await redis.srem(`user_sessions:${userId}`, sessionId);
+export type SessionValidationResult = Awaited<
+  ReturnType<typeof validateSessionToken>
+>;
+
+export async function invalidateSession(sessionId: string) {
+  await db.delete(schema.session).where(eq(schema.session.id, sessionId));
 }
 
-export async function invalidateAllSessions(userId: number): Promise<void> {
-  const sessionIds = await redis.smembers(`user_sessions:${userId}`);
-  if (sessionIds.length < 1) {
-    return;
-  }
-
-  const pipeline = redis.pipeline();
-
-  for (const sessionId of sessionIds) {
-    pipeline.unlink(`session:${sessionId}`);
-  }
-  pipeline.unlink(`user_sessions:${userId}`);
-
-  await pipeline.exec();
-}
-
-export async function setSession2FAVerified(sessionId: string): Promise<void> {
-  const item = await redis.get(`session:${sessionId}`);
-  if (item === null) {
-    return;
-  }
-
-  const result = JSON.parse(item);
-  const session: Session = {
-    id: result.id,
-    userId: result.user_id,
-    expiresAt: new Date(result.expires_at * 1000),
-    twoFactorVerified: result.two_factor_verified,
-  };
-
-  await redis.set(
-    `session:${session.id}`,
-    JSON.stringify({
-      id: session.id,
-      user_id: session.userId,
-      expires_at: Math.floor(session.expiresAt.getTime() / 1000),
-      two_factor_verified: true,
-    }),
-  );
-}
-
-export interface SessionFlags {
-  twoFactorVerified: boolean;
-}
-
-export interface Session extends SessionFlags {
+export interface Session {
   id: string;
-  userId?: number;
+  userId: string | null;
   expiresAt: Date;
 }

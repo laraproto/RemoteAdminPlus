@@ -10,7 +10,7 @@ export const URL = Bun.env.URL ?? "http://localhost:5173";
 
 export const COOKIE_DOMAIN = Bun.env.COOKIE_DOMAIN ?? ".localhost";
 
-export const HOSTNAME = Bun.env.HOSTNAME ?? "localhost";
+export const HOSTNAME = Bun.env.HOST ?? "localhost";
 
 export const PORT = parseInt(Bun.env.PORT ?? "3000");
 

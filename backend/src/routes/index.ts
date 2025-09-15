@@ -1,8 +1,21 @@
 import { Hono } from "hono";
-import { trpcRouter } from "./trpc";
+import { appRouter } from "#routes/trpc";
+import { trpcServer } from "@hono/trpc-server";
+import sessionMiddleware from "#middleware/sessionMiddleware";
 
 const router = new Hono().basePath("/api");
 
-router.route("", trpcRouter);
+router.use(
+  "/trpc/*",
+  sessionMiddleware,
+  trpcServer({
+    endpoint: "/api/trpc",
+    router: appRouter,
+    createContext: (opts, c) => ({
+      session: c.get("session"),
+      user: c.get("user"),
+    }),
+  }),
+);
 
 export default router;

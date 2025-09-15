@@ -3,7 +3,7 @@ declare module "bun" {
     APP_NAME: string;
     API_URL: string;
     URL: string;
-    HOSTNAME: string;
+    HOST: string;
     PORT: string;
     DATABASE_URL: string;
     REDIS_PREFIX: string;
