@@ -10,8 +10,9 @@ const client = createTRPCClient<AppRouter>({
       url: browser ? "/api/trpc" : `${PUBLIC_API_URL}/trpc`,
       headers() {
         const { cookies } = getRequestEvent();
+        const session = cookies.get("session") ?? "";
         return {
-          Authorization: cookies.get("session") ?? "",
+          Authorization: session,
         };
       },
     }),

@@ -1,13 +1,11 @@
 # RemoteAdminPlus
 
-RemoteAdminPlus is an attempt at an open source self-hostable SaaS to improve the moderation situation on SCP Secret Laboratory, also it's called RemoteAdminPlus because Remote Admin is the built in moderation tool for SL
+RemoteAdminPlus is an attempt at an open source self-hostable panel to improve the moderation situation on SCP Secret Laboratory, also it's called RemoteAdminPlus because Remote Admin is the built in moderation tool for SL
 
 ## Roadmap
 - [ ] Authentication (like 70% of the way there right now)
-  - [ ] Figure out auth callbacks and how I would go about resolving panel redirects
+  - [ ] Figure out auth callbacks
 - [ ] Multi-factor authentication
-- [ ] Panel creation
-- [ ] Panel subdomains
 - [ ] Permissions
 - [ ] User invites
 - [ ] First setup wizard
