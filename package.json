@@ -26,7 +26,8 @@
   "workspaces": [
     "website",
     "email",
-    "backend"
+    "backend",
+    "shared"
   ],
   "trustedDependencies": [
     "@remoteadminplus/website",

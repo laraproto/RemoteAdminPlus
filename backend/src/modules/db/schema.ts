@@ -26,6 +26,12 @@ export const user = pgTable("users", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   totpSecret: varchar("totp_secret", { length: 64 }),
+  flags: bigint({ mode: "bigint" })
+    .notNull()
+    .default(sql`1::bigint`),
+  groupId: uuid("group_id").references(() => panelGroups.uuid, {
+    onDelete: "set null",
+  }),
   ...timeData,
 });
 
@@ -46,13 +52,17 @@ export const sessionRelations = relations(session, ({ one }) => ({
   }),
 }));
 
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ one, many }) => ({
   connections: many(connections),
   bans: many(playerBans, { relationName: "banAuthor" }),
   warns: many(playerWarns, { relationName: "warnAuthor" }),
   emailVerifications: many(emailVerifications),
   passwordResets: many(passwordResets),
   player: many(player),
+  group: one(panelGroups, {
+    fields: [user.groupId],
+    references: [panelGroups.uuid],
+  }),
 }));
 
 //anything that supports oauth, we don't discriminate, you can log in using google into the panel for all I care
@@ -81,7 +91,9 @@ export const panelGroups = pgTable("panelGroups", {
   gameGroupId: uuid("game_group_id")
     .notNull()
     .references(() => gameGroups.uuid, { onDelete: "cascade" }),
-  permissions: bigint({ mode: "bigint" }),
+  permissions: bigint({ mode: "bigint" })
+    .notNull()
+    .default(sql`1::bigint`),
   ...timeData,
 });
 
@@ -121,10 +133,11 @@ export const panelGroupsRelations = relations(panelGroups, ({ one, many }) => ({
   inheritedGroupsToInheritingGroups: many(panelGroupsToInheritedGroups, {
     relationName: "inheritedGroup",
   }),
-  gameGroups: one(gameGroups, {
+  gameGroup: one(gameGroups, {
     fields: [panelGroups.gameGroupId],
     references: [gameGroups.uuid],
   }),
+  users: many(user),
 }));
 
 export const gameGroups = pgTable("gameGroups", {
@@ -325,11 +338,20 @@ export type User = typeof user.$inferSelect;
 
 export const userSelect = createSelectSchema(user);
 
-export const userSelectMinimal = userSelect.pick({
+export const panelGroupSelect = createSelectSchema(panelGroups);
+
+export const userSelectMinimalWithoutGroup = userSelect.pick({
   uuid: true,
   username: true,
   createdAt: true,
   updatedAt: true,
+  flags: true,
+  groupId: true,
+});
+
+export const userSelectMinimal = z.object({
+  ...userSelectMinimalWithoutGroup.shape,
+  group: panelGroupSelect.nullable(),
 });
 
 export type UserSelectMinimal = z.infer<typeof userSelectMinimal>;

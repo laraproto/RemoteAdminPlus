@@ -1,0 +1,13 @@
+{
+  "name": "@remoteadminplus/shared",
+  "type": "module",
+  "exports": {
+    "./common/*": "./src/common/*.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

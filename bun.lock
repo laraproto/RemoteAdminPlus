@@ -27,6 +27,7 @@
         "@oslojs/crypto": "^1.0.1",
         "@oslojs/encoding": "^1.1.0",
         "@oslojs/otp": "^1.1.0",
+        "@remoteadminplus/shared": "workspace:*",
         "@trpc/client": "^11.5.1",
         "@trpc/server": "^11.5.1",
         "drizzle-orm": "^0.44.5",
@@ -58,6 +59,15 @@
         "@types/react": "^19.1.10",
         "@types/react-dom": "^19.1.7",
         "react-email": "4.2.8",
+      },
+    },
+    "shared": {
+      "name": "@remoteadminplus/shared",
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
       },
     },
     "website": {
@@ -460,6 +470,8 @@
     "@remoteadminplus/backend": ["@remoteadminplus/backend@workspace:backend"],
 
     "@remoteadminplus/email": ["@remoteadminplus/email@workspace:email"],
+
+    "@remoteadminplus/shared": ["@remoteadminplus/shared@workspace:shared"],
 
     "@remoteadminplus/website": ["@remoteadminplus/website@workspace:website"],
 
