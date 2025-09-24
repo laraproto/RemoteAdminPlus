@@ -69,6 +69,9 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
       if (meta.permissionsRequired()) break;
       throw new TRPCError({ code: "FORBIDDEN" });
     }
+    default: {
+      break; // Fail open for any other type, I need to add bigint support eventually, flag names are preferred though
+    }
   }
 
   return opts.next({
