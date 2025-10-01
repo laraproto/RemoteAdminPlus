@@ -21,6 +21,28 @@ export const Permissions = {
   // Delete bans
   DELETE_BANS: 1n << 12n,
 
+  // View roles
+  VIEW_ROLES: 1n << 13n,
+  // Create and edit roles
+  CREATE_EDIT_ROLES: 1n << 14n,
+  // Delete roles
+  DELETE_ROLES: 1n << 15n,
+
+  // View users
+  VIEW_USERS: 1n << 16n,
+  // Search users
+  SEARCH_USERS: 1n << 17n,
+
+  // Leave of Absence creation
+  LOA_CREATE: 1n << 19n,
+  // Leave of Absence edit
+  LOA_EDIT: 1n << 20n,
+  // Leave of Absence delete and ending
+  LOA_DELETE_END: 1n << 21n,
+
+  // Bypass Hours
+  BYPASS_HOURS: 1n << 22n,
+
   // Banning for twelve hours
   BAN_TWELVE_HOURS: 1n << 23n,
   // Banning for a day
@@ -33,30 +55,6 @@ export const Permissions = {
   BAN_ONE_MONTH: 1n << 27n,
   // Banning permanently
   BAN_PERMANENTLY: 1n << 28n,
-
-  // View roles
-  VIEW_ROLES: 1n << 13n,
-  // Create and edit roles
-  CREATE_EDIT_ROLES: 1n << 14n,
-  // Delete roles
-  DELETE_ROLES: 1n << 15n,
-
-  // View users
-  VIEW_USERS: 1n << 16n,
-  // Search users
-  SEARCH_USERS: 1n << 17n,
-  // Ghost users
-  GHOST_USERS: 1n << 18n,
-
-  // Leave of Absence creation
-  LOA_CREATE: 1n << 19n,
-  // Leave of Absence edit
-  LOA_EDIT: 1n << 20n,
-  // Leave of Absence delete and ending
-  LOA_DELETE_END: 1n << 21n,
-
-  // Bypass Hours
-  BYPASS_HOURS: 1n << 22n,
 
   // View sessions
   VIEW_SESSIONS: 1n << 29n,

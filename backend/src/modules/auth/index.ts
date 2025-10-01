@@ -72,7 +72,15 @@ export type SessionValidationResult = Awaited<
 >;
 
 export async function invalidateSession(sessionId: string) {
-  await db.delete(schema.session).where(eq(schema.session.id, sessionId));
+  const sessionReturned = await db
+    .delete(schema.session)
+    .where(eq(schema.session.id, sessionId))
+    .returning();
+  return sessionReturned === null;
+}
+
+export async function invalidateAllSessionsForUser(userId: string) {
+  await db.delete(schema.session).where(eq(schema.session.userId, userId));
 }
 
 export interface Session {

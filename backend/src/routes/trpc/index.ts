@@ -1,3 +1,4 @@
+import { invalidateSession } from "#modules/auth/index.ts";
 import {
   authedProcedure,
   publicProcedure,
@@ -7,6 +8,9 @@ import { z } from "zod";
 
 const authedRouter = router({
   me: authedProcedure.query(({ ctx }) => ctx.user),
+  logout: authedProcedure.mutation(async ({ ctx }) =>
+    invalidateSession(ctx.session.id),
+  ),
 });
 
 export const appRouter = router({

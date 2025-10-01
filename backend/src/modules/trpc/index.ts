@@ -48,8 +48,7 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
       throw new TRPCError({ code: "FORBIDDEN" });
     }
     case "object": {
-      if (!Array.isArray(meta.permissionsRequired))
-        throw new TRPCError({ code: "FORBIDDEN" }); // Fail closed in an event of a code mistake
+      if (!Array.isArray(meta.permissionsRequired)) break; // Fail open for objects that aren't arrays, to stay in line with default case
 
       let finalMask = 0n;
       for (const perm of meta.permissionsRequired) {
@@ -69,8 +68,18 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
       if (meta.permissionsRequired()) break;
       throw new TRPCError({ code: "FORBIDDEN" });
     }
+    case "bigint": {
+      // Flag names preferred!
+      if (
+        (ctx.user.group !== null &&
+          !!(ctx.user.group?.permissions & meta.permissionsRequired)) ||
+        !!(ctx.user.flags & meta.permissionsRequired)
+      )
+        break;
+      throw new TRPCError({ code: "FORBIDDEN" });
+    }
     default: {
-      break; // Fail open for any other type, I need to add bigint support eventually, flag names are preferred though
+      break; // Fail open for any other type
     }
   }
 
