@@ -34,7 +34,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  migrate:
+  api:
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,24 +42,12 @@ services:
       context: .
       args:
         SERVER_API_URL: http://api:3000
+    restart: on-failure
     environment: &env
       - NODE_ENV=production
       - DATABASE_HINT=socket:/var/run/postgresql?db=remoteadminplus
       - SERVER_API_URL=http://api:3000
       - DATA_DIR=/data
-    volumes:
-      - app_data:/data
-      - postgres-socket:/var/run/postgresql
-    working_dir: /app/backend
-    command: ["bun", "run", "db:push"]
-
-  api:
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-    build: *build
-    restart: on-failure
-    environment: *env
     working_dir: /app/backend
     command: ["bun", "run", "start"]
     volumes:
@@ -69,7 +57,7 @@ services:
       - "3000"
     labels:
       - "traefik.http.routers.api.priority=100"
-      - "traefik.http.routers.api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.api.rule=PathPrefix(`/api`)"
 
   website:
     depends_on:
@@ -83,7 +71,7 @@ services:
     expose:
       - "3000"
     labels:
-      - "traefik.http.routers.website.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.website.rule=PathPrefix(`/`)"
 
 volumes:
   postgres-data:

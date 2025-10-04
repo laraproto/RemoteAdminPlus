@@ -1,7 +1,13 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
-import { DATABASE_URL } from "#modules/config";
+import { firstRunConfig } from "#modules/firstrun";
 
-export const db = drizzle(DATABASE_URL, { schema });
+if (!firstRunConfig) {
+  throw new Error(
+    "First run configuration not found. Please complete the first run setup.",
+  );
+}
+
+export const db = drizzle(firstRunConfig.database_url, { schema });
 
 export * as schema from "./schema";

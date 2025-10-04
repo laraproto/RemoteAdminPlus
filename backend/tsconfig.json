@@ -33,5 +33,5 @@
       "#modules/*": ["./modules/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/globals.d.ts", "src/**/*"]
 }

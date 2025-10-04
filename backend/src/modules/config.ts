@@ -36,6 +36,10 @@ export const DATA_DIR = (() => {
       return data_dir;
     }
     default: {
+      if (Bun.env.DATA_DIR) {
+        fs.mkdirSync(Bun.env.DATA_DIR, { recursive: true });
+        return Bun.env.DATA_DIR;
+      }
       throw new Error(`Unsupported platform: ${platform}`);
     }
   }

@@ -19,7 +19,8 @@
     "db:push": "bun drizzle-kit push",
     "db:generate": "bun drizzle-kit generate",
     "db:migrate": "bun drizzle-kit migrate",
-    "db:studio": "bun drizzle-kit studio"
+    "db:studio": "bun drizzle-kit studio",
+    "build:sfc": "bun build --compile --target bun --outfile api_compiled --asset-naming=\"[name].[ext]\" ./src/index.ts ./src/modules/db/**/*.sql"
   },
   "dependencies": {
     "@hono/trpc-server": "^0.4.0",

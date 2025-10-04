@@ -1,15 +1,17 @@
 declare module "bun" {
   interface Env {
-    APP_NAME: string;
-    API_URL: string;
-    URL: string;
     HOST: string;
     PORT: string;
-    DATABASE_URL: string;
+    DATABASE_HINT: string;
     REDIS_PREFIX: string;
     REDIS_URL: string;
-    COOKIE_DOMAIN: string;
-    APP_SECRET: string;
-    JWT_SECRET: string;
+    DATA_DIR: string;
   }
 }
+
+declare module "*.sql" {
+  const content: string;
+  export default content;
+}
+
+export {};
