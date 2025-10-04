@@ -80,7 +80,11 @@ export async function invalidateSession(sessionId: string) {
 }
 
 export async function invalidateAllSessionsForUser(userId: string) {
-  await db.delete(schema.session).where(eq(schema.session.userId, userId));
+  const sessionReturned = await db
+    .delete(schema.session)
+    .where(eq(schema.session.userId, userId))
+    .returning();
+  return sessionReturned === null;
 }
 
 export interface Session {

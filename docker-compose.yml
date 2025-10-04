@@ -2,18 +2,21 @@ name: remoteadminplus
 
 services:
   postgres:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+    image: postgres:18
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - app_data:/data
+      - postgres-socket:/var/run/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
       interval: 1s
       timeout: 5s
       retries: 10
+    post_start:
+      - command: useradd -m runner
+        user: root
+      - command: psql -U ${DB_USER} -d ${DB_NAME} -c "CREATE ROLE IF NOT EXISTS runner; CREATE DATABASE runner OWNER runner;"
+        user: postgres
 
   valkey:
     image: valkey/valkey:8-alpine
@@ -26,7 +29,7 @@ services:
       - "--entrypoints.web.address=:8080"
       - "--entrypoints.traefik.address=:8081"
     ports:
-      - "${PROXY_PORT:?Proxy Port Required}:8080"
+      - "8778:8080"
       - 8081:8081
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -38,18 +41,15 @@ services:
     build: &build
       context: .
       args:
-        API_URL: ${API_URL}
-        PUBLIC_API_URL: ${PUBLIC_API_URL}
-        URL: ${URL}
-        PUBLIC_URL: ${PUBLIC_URL}
-        DOMAIN: ${DOMAIN}
-        PUBLIC_DOMAIN: ${PUBLIC_DOMAIN}
-        SERVER_API_URL: ${SERVER_API_URL}
+        SERVER_API_URL: http://api:3000
     environment: &env
       - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
-    env_file:
-      - .env
+      - DATABASE_HINT=socket:/var/run/postgresql?db=remoteadminplus
+      - SERVER_API_URL=http://api:3000
+      - DATA_DIR=/data
+    volumes:
+      - app_data:/data
+      - postgres-socket:/var/run/postgresql
     working_dir: /app/backend
     command: ["bun", "run", "db:push"]
 
@@ -60,10 +60,11 @@ services:
     build: *build
     restart: on-failure
     environment: *env
-    env_file:
-      - .env
     working_dir: /app/backend
     command: ["bun", "run", "start"]
+    volumes:
+      - app_data:/data
+      - postgres-socket:/var/run/postgresql
     expose:
       - "3000"
     labels:
@@ -77,14 +78,14 @@ services:
     build: *build
     restart: on-failure
     environment: *env
-    env_file:
-      - .env
     working_dir: /app/website
     command: ["bun", "--bun", "./build"]
     expose:
       - "3000"
     labels:
-      - "traefik.http.routers.website.rule=Host(`${DOMAIN}`) || HostRegexp(`^.+.${DOMAIN}`)"
+      - "traefik.http.routers.website.rule=Host(`${DOMAIN}`)"
 
 volumes:
   postgres-data:
+  app_data:
+  postgres-socket:

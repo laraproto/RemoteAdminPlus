@@ -9,8 +9,10 @@ ARG PUBLIC_URL
 ARG DOMAIN
 ARG PUBLIC_DOMAIN
 
+USER runner
+
 WORKDIR /app
-COPY . /app
+COPY --chown=runner . /app
 
 RUN bun install --frozen-lockfile
 

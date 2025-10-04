@@ -98,12 +98,12 @@ export const panelGroups = pgTable("panelGroups", {
 });
 
 export const panelGroupsToInheritedGroups = pgTable(
-  "panelGroupsToInheritedGroups",
+  "panelGroupsInheritedGroups",
   {
-    inheritingGroupId: uuid("inheriting_group_id")
+    inheritingGroupId: uuid("owning_group")
       .notNull()
       .references(() => panelGroups.uuid, { onDelete: "cascade" }),
-    inheritedGroupId: uuid("inherited_group_id")
+    inheritedGroupId: uuid("owned_group")
       .notNull()
       .references(() => panelGroups.uuid, { onDelete: "cascade" }),
   },
@@ -116,22 +116,22 @@ export const panelGroupsToInheritedGroupsRelations = relations(
     inheritingGroup: one(panelGroups, {
       fields: [panelGroupsToInheritedGroups.inheritingGroupId],
       references: [panelGroups.uuid],
-      relationName: "inheritingGroup",
+      relationName: "owningGroup",
     }),
     inheritedGroup: one(panelGroups, {
       fields: [panelGroupsToInheritedGroups.inheritedGroupId],
       references: [panelGroups.uuid],
-      relationName: "inheritedGroup",
+      relationName: "ownedGroup",
     }),
   }),
 );
 
 export const panelGroupsRelations = relations(panelGroups, ({ one, many }) => ({
   inheritingGroupsToInheritedGroups: many(panelGroupsToInheritedGroups, {
-    relationName: "inheritingGroup",
+    relationName: "owningGroup",
   }),
   inheritedGroupsToInheritingGroups: many(panelGroupsToInheritedGroups, {
-    relationName: "inheritedGroup",
+    relationName: "ownedGroup",
   }),
   gameGroup: one(gameGroups, {
     fields: [panelGroups.gameGroupId],
@@ -151,12 +151,12 @@ export const gameGroups = pgTable("gameGroups", {
 });
 
 export const gameGroupsToInheritedGroups = pgTable(
-  "gameGroupsToInheritedGroups",
+  "gameGroupsInheritedGroups",
   {
-    inheritingGroupId: uuid("inheriting_group_id")
+    inheritingGroupId: uuid("owning_group_id")
       .notNull()
       .references(() => gameGroups.uuid, { onDelete: "cascade" }),
-    inheritedGroupId: uuid("inherited_group_id")
+    inheritedGroupId: uuid("owned_group_id")
       .notNull()
       .references(() => gameGroups.uuid, { onDelete: "cascade" }),
   },
@@ -169,12 +169,12 @@ export const gameGroupsToInheritedGroupsRelations = relations(
     inheritingGroup: one(gameGroups, {
       fields: [gameGroupsToInheritedGroups.inheritingGroupId],
       references: [gameGroups.uuid],
-      relationName: "inheritingGroup",
+      relationName: "owningGroup",
     }),
     inheritedGroup: one(gameGroups, {
       fields: [gameGroupsToInheritedGroups.inheritedGroupId],
       references: [gameGroups.uuid],
-      relationName: "inheritedGroup",
+      relationName: "ownedGroup",
     }),
   }),
 );
@@ -182,10 +182,10 @@ export const gameGroupsToInheritedGroupsRelations = relations(
 export const gameGroupsRelations = relations(gameGroups, ({ many }) => ({
   panelGroups: many(panelGroups),
   inheritingGroupsToInheritedGroups: many(gameGroupsToInheritedGroups, {
-    relationName: "inheritingGroup",
+    relationName: "owningGroup",
   }),
   inheritedGroupsToInheritingGroups: many(gameGroupsToInheritedGroups, {
-    relationName: "inheritedGroup",
+    relationName: "ownedGroup",
   }),
 }));
 
