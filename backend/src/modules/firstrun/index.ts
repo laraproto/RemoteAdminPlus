@@ -11,7 +11,7 @@ class FirstRunConfiguration {
   }
 }
 
-const db = new Database(`${DATA_DIR}/database.db`, {
+const db = new Database(`${DATA_DIR}/config.db`, {
   strict: true,
 });
 
