@@ -50,13 +50,6 @@ const firstrunRouter = router({
         `INSERT INTO data (database_url, app_name, admin_username, admin_password) VALUES ($database_url, $app_name, $admin_username, $admin_password);`,
       );
 
-      insertFirstRun.get({
-        database_url: firstrunGenerated.database_url,
-        app_name: firstrunGenerated.app_name,
-        admin_username: firstrunGenerated.admin_username,
-        admin_password: firstrunGenerated.admin_password,
-      });
-
       try {
         reconnectDatabase();
       } catch (err) {
@@ -84,6 +77,13 @@ const firstrunRouter = router({
       }
 
       setFirstRunConfig(firstrunGenerated);
+
+      insertFirstRun.get({
+        database_url: firstrunGenerated.database_url,
+        app_name: firstrunGenerated.app_name,
+        admin_username: firstrunGenerated.admin_username,
+        admin_password: firstrunGenerated.admin_password,
+      });
     }),
 });
 
