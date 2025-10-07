@@ -5,6 +5,7 @@ import {
   type UserFlagKeys,
 } from "@remoteadminplus/shared/common/user";
 import { initTRPC, TRPCError } from "@trpc/server";
+import { firstRunConfig } from "../firstrun";
 
 interface Meta {
   permissionsRequired: UserFlagKeys | UserFlagKeys[] | (() => boolean);
@@ -81,6 +82,17 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
     default: {
       break; // Fail open for any other type
     }
+  }
+
+  return opts.next({
+    ctx,
+  });
+});
+
+export const firstrunProcedure = publicProcedure.use(async (opts) => {
+  const { ctx } = opts;
+  if (firstRunConfig) {
+    throw new TRPCError({ code: "FORBIDDEN" });
   }
 
   return opts.next({

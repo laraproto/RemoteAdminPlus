@@ -46,10 +46,7 @@ export const DATA_DIR = (() => {
 })();
 
 export const DATABASE_HINT = (() => {
-  if (!isUndefinedOrEmpty(Bun.env.DATABASE_URL))
-    throw new Error("DATABASE_HINT is not set");
-
-  return Bun.env.DATABASE_URL;
+  return isUndefinedOrEmpty(Bun.env.DATABASE_URL);
 })();
 
 export const REDIS_PREFIX = isUndefinedOrEmpty(

@@ -2,6 +2,7 @@ import { createMiddleware } from "hono/factory";
 import { getCookie, setCookie } from "hono/cookie";
 import * as auth from "#modules/auth";
 import type { UserSelectMinimal } from "#modules/db/schema";
+import { db } from "#modules/db/index.ts";
 
 const sessionMiddleware = createMiddleware<{
   Variables: {
@@ -9,6 +10,12 @@ const sessionMiddleware = createMiddleware<{
     user: UserSelectMinimal | null;
   };
 }>(async (c, next) => {
+  if (!db) {
+    console.log("Database is not available");
+    await next();
+    return;
+  }
+
   const authHeader = c.req.header("Authorization");
   const authCookie = getCookie(c, "session");
 

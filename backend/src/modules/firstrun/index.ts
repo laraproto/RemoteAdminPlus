@@ -3,29 +3,44 @@ import { DATA_DIR } from "#modules/config.ts";
 // @ts-expect-error for some reason it's giving ts 2307 despite the module declaration
 import firstrun from "./firstrun.sql" with { type: "text" };
 
-class FirstRunConfiguration {
+export class FirstRunConfiguration {
   database_url: string;
+  app_name: string;
+  admin_username: string;
+  admin_password: string;
 
-  constructor(p_database_url: string) {
+  constructor(
+    p_database_url: string,
+    p_app_name = "RemoteAdminPlus",
+    p_admin_username: string,
+    p_admin_password: string,
+  ) {
     this.database_url = p_database_url;
+    this.app_name = p_app_name;
+    this.admin_username = p_admin_username;
+    this.admin_password = p_admin_password;
   }
 }
 
-const db = new Database(`${DATA_DIR}/config.db`, {
+export const configDB = new Database(`${DATA_DIR}/config.db`, {
   strict: true,
 });
 
-const dataExists = db.query<{ "count(*)": number }, []>(
+const dataExists = configDB.query<{ "count(*)": number }, []>(
   "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='data';",
 );
 
 if (dataExists.get()!["count(*)"] === 0) {
   console.log("Migrating database...");
-  db.run(firstrun);
+  configDB.run(firstrun);
 }
 
-const dataTableQuery = db
+const dataTableQuery = configDB
   .query("SELECT * FROM data;")
   .as(FirstRunConfiguration);
 
-export const firstRunConfig = dataTableQuery.get();
+export let firstRunConfig = dataTableQuery.get();
+
+export const setFirstRunConfig = (config: FirstRunConfiguration) => {
+  firstRunConfig = config;
+};
