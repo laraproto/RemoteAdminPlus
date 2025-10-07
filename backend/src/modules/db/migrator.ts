@@ -8,6 +8,7 @@ import { embeddedFiles } from "bun";
 // Drizzle's migrator doesn't seem to touch the snapshot files, so i'm not gonna bother trying to collect them
 import journalImport from "./migrations/meta/_journal.json" with { type: "json" };
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import path from "node:path";
 
 // Borrowed directly from drizzle source, adapted for Bun embedded files in single file executables
 export async function readMigrationFilesEmbedded(): Promise<MigrationMeta[]> {
@@ -57,8 +58,10 @@ export async function readMigrationFilesEmbedded(): Promise<MigrationMeta[]> {
 
 export async function migrate<TSchema extends Record<string, unknown>>(
   db: PostgresJsDatabase<TSchema>,
-  config: MigrationConfig,
 ) {
+  const config: MigrationConfig = {
+    migrationsFolder: path.join(import.meta.dir, "migrations"),
+  };
   let migrations: MigrationMeta[] = [];
   if (!embeddedFiles == false) {
     migrations = await readMigrationFilesEmbedded();

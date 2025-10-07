@@ -7,6 +7,8 @@ import {
   FirstRunConfiguration,
   setFirstRunConfig,
 } from "#modules/firstrun/index.ts";
+import { db, reconnectDatabase } from "#modules/db";
+import { migrate } from "#modules/db/migrator.ts";
 
 const firstrunRouter = router({
   get: firstrunProcedure.query(() => {
@@ -54,6 +56,32 @@ const firstrunRouter = router({
         admin_username: firstrunGenerated.admin_username,
         admin_password: firstrunGenerated.admin_password,
       });
+
+      try {
+        reconnectDatabase();
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to connect to database, check your Database URL",
+          cause: err,
+        });
+      }
+
+      try {
+        if (!db) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Database connection is not available",
+          });
+        }
+        migrate(db);
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to migrate database",
+          cause: err,
+        });
+      }
 
       setFirstRunConfig(firstrunGenerated);
     }),
