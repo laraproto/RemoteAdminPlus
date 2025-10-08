@@ -7,7 +7,7 @@ RemoteAdminPlus is an attempt at an open source self-hostable panel to improve t
 - [ ] Multi-factor authentication
 - [ ] Permissions
 - [ ] User invites
-- [ ] First setup wizard
+- [x] First setup wizard
 
 ## Implementation plans
 

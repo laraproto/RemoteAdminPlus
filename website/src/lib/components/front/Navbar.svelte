@@ -3,15 +3,18 @@
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
-  import type { User } from "$lib/types/common";
+  import type { User, Configuration } from "$lib/types/common";
 
-  let { user }: { user: User | null } = $props();
+  let {
+    user,
+    configuration,
+  }: { user: User | null; configuration: Configuration | null } = $props();
 </script>
 
 <header>
   <nav class="flex flex-row items-center justify-between">
     <a href={resolve(user ? "/panel/" : "/")} class="p-3 text-xl">
-      RemoteAdminPlus
+      {configuration?.appName || "RemoteAdminPlus"}
     </a>
     <NavigationMenu.Root class="pr-8">
       <NavigationMenu.List>

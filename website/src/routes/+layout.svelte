@@ -16,7 +16,7 @@
 <Toaster />
 <ModeWatcher />
 <main>
-  <Navbar user={data.user} />
+  <Navbar user={data.user} configuration={data.configuration} />
   <article>
     {@render children()}
   </article>
