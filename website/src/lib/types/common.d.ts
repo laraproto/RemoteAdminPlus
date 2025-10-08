@@ -8,4 +8,10 @@ export const User = z.object({
 
 export type User = z.infer<typeof User>;
 
+export const Configuration = z.object({
+  appName: z.string(),
+});
+
+export type Configuration = z.infer<typeof Configuration>;
+
 export {};

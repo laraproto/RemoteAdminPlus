@@ -79,6 +79,8 @@ export const Permissions = {
 export const UserFlags = {
   // Basic user
   USER: 1n << 0n,
+  // Superadmin
+  SUPERADMIN: 1n << 1n,
 
   ...Permissions,
 } as const;

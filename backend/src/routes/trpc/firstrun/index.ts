@@ -45,6 +45,18 @@ const firstrunRouter = router({
         });
       }
 
+      if (
+        input.admin_username === "" ||
+        input.admin_password === "" ||
+        !input.admin_username ||
+        !input.admin_password
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Admin Username or Password cannot be empty",
+        });
+      }
+
       const password_hashed = await Bun.password.hash(input.admin_password);
 
       const firstrunGenerated = new FirstRunConfiguration(
@@ -57,6 +69,8 @@ const firstrunRouter = router({
       const insertFirstRun = configDB.query(
         `INSERT INTO data (database_url, app_name, admin_username, admin_password) VALUES ($database_url, $app_name, $admin_username, $admin_password);`,
       );
+
+      setFirstRunConfig(firstrunGenerated);
 
       try {
         reconnectDatabase();
@@ -75,7 +89,7 @@ const firstrunRouter = router({
             message: "Database connection is not available",
           });
         }
-        migrate(db);
+        await migrate(db);
       } catch (err) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -84,14 +98,30 @@ const firstrunRouter = router({
         });
       }
 
-      setFirstRunConfig(firstrunGenerated);
+      try {
+        const testDbQuery = db.query.session.findFirst();
 
-      insertFirstRun.get({
-        database_url: firstrunGenerated.database_url,
-        app_name: firstrunGenerated.app_name,
-        admin_username: firstrunGenerated.admin_username,
-        admin_password: firstrunGenerated.admin_password,
-      });
+        insertFirstRun.get({
+          database_url: firstrunGenerated.database_url,
+          app_name: firstrunGenerated.app_name,
+          admin_username: firstrunGenerated.admin_username,
+          admin_password: firstrunGenerated.admin_password,
+        });
+
+        return {
+          success: !testDbQuery,
+          redirect: "/login",
+        };
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "Failde to query database, migration scripts probably failed silently",
+          cause: err,
+        });
+
+        setFirstRunConfig(null);
+      }
     }),
 });
 

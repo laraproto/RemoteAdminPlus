@@ -115,7 +115,7 @@ CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"username" varchar(255) NOT NULL,
 	"password" varchar(512) NOT NULL,
-	"email" varchar(255) NOT NULL,
+	"email" varchar(255),
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"totp_secret" varchar(64),
 	"flags" bigint DEFAULT 1::bigint NOT NULL,

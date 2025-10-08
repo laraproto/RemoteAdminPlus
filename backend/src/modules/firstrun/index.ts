@@ -41,6 +41,6 @@ const dataTableQuery = configDB
 
 export let firstRunConfig = dataTableQuery.get();
 
-export const setFirstRunConfig = (config: FirstRunConfiguration) => {
+export const setFirstRunConfig = (config: FirstRunConfiguration | null) => {
   firstRunConfig = config;
 };

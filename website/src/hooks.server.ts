@@ -5,6 +5,14 @@ import type { AppRouter } from "@remoteadminplus/backend/trpc";
 
 export const handle: Handle = async ({ event, resolve }) => {
   try {
+    const configuration = await client.configuration.query();
+    event.locals.configuration = configuration;
+  } catch (error) {
+    console.error("Error fetching configuration:", error);
+    event.locals.configuration = null;
+  }
+
+  try {
     if (!event.cookies.get("session")) return resolve(event);
     const user = await client.authed.me.query();
     event.locals.user = user as {

@@ -59,15 +59,18 @@ export async function readMigrationFilesEmbedded(): Promise<MigrationMeta[]> {
 export async function migrate<TSchema extends Record<string, unknown>>(
   db: PostgresJsDatabase<TSchema>,
 ) {
+  const folder = path.join(import.meta.dir, "migrations");
+  console.log(folder);
   const config: MigrationConfig = {
-    migrationsFolder: path.join(import.meta.dir, "migrations"),
+    migrationsFolder: folder,
   };
   let migrations: MigrationMeta[] = [];
-  if (!embeddedFiles == false) {
+  if (!embeddedFiles) {
     migrations = await readMigrationFilesEmbedded();
   } else {
     migrations = readMigrationFiles(config);
   }
+
   //@ts-expect-error I don't know what kind of magic drizzle does but I assume they don't want you to write custom migrators
   await db.dialect.migrate(migrations, db.session, config);
 }

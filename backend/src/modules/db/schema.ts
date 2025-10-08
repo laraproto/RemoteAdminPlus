@@ -23,7 +23,7 @@ export const user = pgTable("users", {
   uuid: uuid("id").primaryKey().defaultRandom(),
   username: varchar("username", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 512 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   totpSecret: varchar("totp_secret", { length: 64 }),
   flags: bigint({ mode: "bigint" })
