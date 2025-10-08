@@ -8,8 +8,9 @@ import {
   FirstRunConfiguration,
   setFirstRunConfig,
 } from "#modules/firstrun/index";
-import { db, reconnectDatabase } from "#modules/db";
+import { db, reconnectDatabase, schema } from "#modules/db";
 import { migrate } from "#modules/db/migrator";
+import { UserFlags } from "@remoteadminplus/shared/common/user";
 
 const firstrunRouter = router({
   get: firstrunProcedure.query(() => {
@@ -99,7 +100,11 @@ const firstrunRouter = router({
       }
 
       try {
-        const testDbQuery = db.query.session.findFirst();
+        await db.insert(schema.user).values({
+          username: firstrunGenerated.admin_username,
+          password: firstrunGenerated.admin_password,
+          flags: UserFlags.SUPERADMIN,
+        });
 
         insertFirstRun.get({
           database_url: firstrunGenerated.database_url,
@@ -109,14 +114,14 @@ const firstrunRouter = router({
         });
 
         return {
-          success: !testDbQuery,
+          success: true,
           redirect: "/login",
         };
       } catch (err) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
-            "Failde to query database, migration scripts probably failed silently",
+            "Failed to query database, migration scripts probably failed silently",
           cause: err,
         });
 
