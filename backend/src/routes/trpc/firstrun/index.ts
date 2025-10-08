@@ -1,17 +1,25 @@
-import { firstrunProcedure, router } from "#modules/trpc/index.ts";
+import { firstrunProcedure, router } from "#modules/trpc/index";
 import { z } from "zod";
-import { DATA_DIR, DATABASE_HINT } from "#modules/config.ts";
+import { DATA_DIR, DATABASE_HINT } from "#modules/config";
 import { TRPCError } from "@trpc/server";
 import {
   configDB,
+  firstRunConfig,
   FirstRunConfiguration,
   setFirstRunConfig,
-} from "#modules/firstrun/index.ts";
+} from "#modules/firstrun/index";
 import { db, reconnectDatabase } from "#modules/db";
-import { migrate } from "#modules/db/migrator.ts";
+import { migrate } from "#modules/db/migrator";
 
 const firstrunRouter = router({
   get: firstrunProcedure.query(() => {
+    if (firstRunConfig) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: "Application is already configured",
+      });
+    }
+
     return {
       database_hint: DATABASE_HINT,
       data_dir: DATA_DIR,

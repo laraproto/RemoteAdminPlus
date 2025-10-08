@@ -7,7 +7,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   try {
     if (!event.cookies.get("session")) return resolve(event);
     const user = await client.authed.me.query();
-    event.locals.user = user.data as {
+    event.locals.user = user as {
       uuid: string;
       username: string;
       emailVerified: boolean;

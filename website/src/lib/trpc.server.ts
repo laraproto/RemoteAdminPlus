@@ -1,13 +1,15 @@
 import type { AppRouter } from "@remoteadminplus/backend/trpc";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { getRequestEvent } from "$app/server";
-import { PUBLIC_API_URL } from "$env/static/public";
-import { browser } from "$app/environment";
+import { SERVER_API_URL, URL } from "$env/static/private";
 
 const client = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: browser ? "/api/trpc" : `${PUBLIC_API_URL}/trpc`,
+      url:
+        !SERVER_API_URL || SERVER_API_URL === ""
+          ? `${URL}/api/trpc`
+          : `${SERVER_API_URL}/trpc`,
       headers() {
         const { cookies } = getRequestEvent();
         const session = cookies.get("session") ?? "";

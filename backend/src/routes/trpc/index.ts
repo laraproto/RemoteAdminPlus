@@ -1,4 +1,4 @@
-import { publicProcedure, router } from "#modules/trpc/index.ts";
+import { publicProcedure, router } from "#modules/trpc/index";
 import { z } from "zod";
 import authedRouter from "#routes/trpc/authed";
 import firstrunRouter from "#routes/trpc/firstrun";

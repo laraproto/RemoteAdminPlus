@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { DATA_DIR } from "#modules/config.ts";
+import { DATA_DIR } from "#modules/config";
 // @ts-expect-error for some reason it's giving ts 2307 despite the module declaration
 import firstrun from "./firstrun.sql" with { type: "text" };
 

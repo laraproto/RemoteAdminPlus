@@ -1,5 +1,5 @@
-import { invalidateSession } from "#modules/auth/index.ts";
-import { authedProcedure, router } from "#modules/trpc/index.ts";
+import { invalidateSession } from "#modules/auth/index";
+import { authedProcedure, router } from "#modules/trpc/index";
 //import { z } from "zod";
 
 const authedRouter = router({

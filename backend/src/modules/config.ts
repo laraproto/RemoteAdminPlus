@@ -46,7 +46,7 @@ export const DATA_DIR = (() => {
 })();
 
 export const DATABASE_HINT = (() => {
-  return isUndefinedOrEmpty(Bun.env.DATABASE_URL);
+  return isUndefinedOrEmpty(Bun.env.DATABASE_HINT);
 })();
 
 export const REDIS_PREFIX = isUndefinedOrEmpty(
