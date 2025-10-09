@@ -64,7 +64,11 @@
         <div class="flex flex-col gap-6">
           <div class="grid gap-2">
             <Label for="database_url">Database URL</Label>
-            <Input id="database_url" readonly bind:value={databaseUrl} />
+            <Input
+              id="database_url"
+              readonly={!!data.firstrun?.database_hint}
+              bind:value={databaseUrl}
+            />
           </div>
           <div class="grid gap-2">
             <Label for="app_name">App Name</Label>

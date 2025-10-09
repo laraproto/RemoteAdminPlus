@@ -76,6 +76,7 @@ const firstrunRouter = router({
       try {
         reconnectDatabase();
       } catch (err) {
+        console.error(err);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to connect to database, check your Database URL",
@@ -92,6 +93,7 @@ const firstrunRouter = router({
         }
         await migrate(db);
       } catch (err) {
+        console.error(err);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to migrate database",
@@ -118,6 +120,7 @@ const firstrunRouter = router({
           redirect: "/login",
         };
       } catch (err) {
+        console.error(err);
         setFirstRunConfig(null);
 
         throw new TRPCError({
