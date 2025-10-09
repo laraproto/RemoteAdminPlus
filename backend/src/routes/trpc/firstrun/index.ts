@@ -118,14 +118,14 @@ const firstrunRouter = router({
           redirect: "/login",
         };
       } catch (err) {
+        setFirstRunConfig(null);
+
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message:
             "Failed to query database, migration scripts probably failed silently",
           cause: err,
         });
-
-        setFirstRunConfig(null);
       }
     }),
 });
