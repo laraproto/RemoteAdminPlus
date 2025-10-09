@@ -99,3 +99,14 @@ export const firstrunProcedure = publicProcedure.use(async (opts) => {
     ctx,
   });
 });
+
+export const registrationProcedure = publicProcedure.use(async (opts) => {
+  const { ctx } = opts;
+  if (ctx.user || ctx.session === null) {
+    throw new TRPCError({ code: "FORBIDDEN" });
+  }
+
+  return opts.next({
+    ctx,
+  });
+});

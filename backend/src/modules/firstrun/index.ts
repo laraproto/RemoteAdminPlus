@@ -4,10 +4,12 @@ import { DATA_DIR } from "#modules/config";
 import firstrun from "./firstrun.sql" with { type: "text" };
 
 export class FirstRunConfiguration {
+  id: number = 0;
   database_url: string;
   app_name: string;
   admin_username: string;
   admin_password: string;
+  registration_enabled: boolean = false;
 
   constructor(
     p_database_url: string,
