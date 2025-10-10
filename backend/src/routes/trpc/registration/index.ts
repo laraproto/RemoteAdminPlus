@@ -1,5 +1,6 @@
-import { firstRunConfig } from "#modules/firstrun/index.js";
+import { firstRunConfig } from "#modules/firstrun";
 import { registrationProcedure, router } from "#modules/trpc/index";
+import { db } from "#modules/db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -9,7 +10,7 @@ const registrationRouter = router({
       z.object({
         username: z.string().min(3).max(32),
         password: z.string().min(8).max(128),
-        email: z.email().optional(),
+        email: z.email().nullable(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -20,6 +21,17 @@ const registrationRouter = router({
         });
       }
 
+      const existingUser = await db.query.user.findFirst({
+        where: (user, { eq, or }) =>
+          or(eq(user.username, input.username), eq(user.email, input.email)),
+      });
+
+      if (existingUser) {
+        return {
+          success: false,
+          message: "Username or email already in use",
+        };
+      }
       console.log(input);
     }),
 });
