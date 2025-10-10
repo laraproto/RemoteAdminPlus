@@ -1,6 +1,7 @@
 import { firstRunConfig } from "#modules/firstrun";
 import { registrationProcedure, router } from "#modules/trpc/index";
-import { db } from "#modules/db";
+import { db, schema } from "#modules/db";
+import * as auth from "#modules/auth";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -10,10 +11,10 @@ const registrationRouter = router({
       z.object({
         username: z.string().min(3).max(32),
         password: z.string().min(8).max(128),
-        email: z.email().nullable(),
+        email: z.email().min(8).max(128).nullable(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       if (!firstRunConfig?.registration_enabled) {
         throw new TRPCError({
           code: "FORBIDDEN",
@@ -32,7 +33,41 @@ const registrationRouter = router({
           message: "Username or email already in use",
         };
       }
-      console.log(input);
+
+      const password_hashed = await Bun.password.hash(input.password);
+
+      try {
+        const newUser = await db
+          .insert(schema.user)
+          .values({
+            username: input.username,
+            password: password_hashed,
+            email: input.email,
+          })
+          .returning({
+            uuid: schema.user.uuid,
+          });
+
+        // Make typescript happy
+        if (!newUser[0]) {
+          return;
+        }
+
+        auth.setSessionUser(ctx.session.id, newUser[0].uuid);
+
+        return {
+          success: true,
+          redirect: "/panel",
+          message: "Registration success, you should be getting redirected now",
+        };
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "Failed to create user, this should never happen, yet it did somehow",
+          cause: err,
+        });
+      }
     }),
 });
 
