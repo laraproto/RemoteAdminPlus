@@ -69,6 +69,46 @@ const registrationRouter = router({
         });
       }
     }),
+  login: registrationProcedure
+    .input(
+      z.object({
+        username: z.string().min(3).max(128),
+        password: z.string().min(8).max(128),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      const user = await db.query.user.findFirst({
+        where: (user, { or, eq }) =>
+          or(eq(user.username, input.username), eq(user.email, input.username)),
+      });
+
+      if (!user) {
+        return {
+          success: false,
+          message: "Invalid username or password",
+        };
+      }
+
+      const passwordMatch = await Bun.password.verify(
+        user.password,
+        input.password,
+      );
+
+      if (!passwordMatch) {
+        return {
+          success: false,
+          message: "Invalid username or password",
+        };
+      }
+
+      auth.setSessionUser(ctx.session.id, user.uuid);
+
+      return {
+        success: true,
+        redirect: "/panel",
+        message: "Login success, you should be getting redirected now",
+      };
+    }),
 });
 
 export default registrationRouter;
