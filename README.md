@@ -4,7 +4,7 @@ RemoteAdminPlus is an attempt at an open source self-hostable panel to improve t
 
 ## Roadmap
 
-- [ ] Authentication (like 40% of the way there right now)
+- [ ] Authentication (like 70% of the way there right now)
 - [ ] Multi-factor authentication
 - [ ] Permissions
 - [ ] User invites
