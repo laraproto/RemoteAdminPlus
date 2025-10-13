@@ -118,7 +118,7 @@ const firstrunRouter = router({
         return {
           success: true,
           redirect: "/login",
-          message: "First run wizard complete, please log in"
+          message: "First run wizard complete, please log in",
         };
       } catch (err) {
         console.error(err);

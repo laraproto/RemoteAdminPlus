@@ -2,7 +2,7 @@ import { createMiddleware } from "hono/factory";
 import { getCookie, setCookie } from "hono/cookie";
 import * as auth from "#modules/auth";
 import type { UserSelectMinimal } from "#modules/db/schema";
-import { db } from "#modules/db/index.ts";
+import { db } from "#modules/db";
 
 const sessionMiddleware = createMiddleware<{
   Variables: {

@@ -9,7 +9,11 @@ export class FirstRunConfiguration {
   app_name: string;
   admin_username: string;
   admin_password: string;
-  registration_enabled: boolean = false;
+  registration_enabled: number = 0;
+
+  get canRegister() {
+    return this.registration_enabled === 1;
+  }
 
   constructor(
     p_database_url: string,

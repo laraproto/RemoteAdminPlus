@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
 import { firstRunConfig } from "#modules/firstrun";
 import postgres from "postgres";
+import { migrate } from "./migrator";
 
 export let db: ReturnType<typeof drizzle<typeof schema>>;
 
@@ -30,7 +31,11 @@ db = (() => {
     return;
   }
 
-  return drizzle({ client, schema });
+  const db = drizzle({ client, schema });
+
+  migrate(db);
+
+  return db;
 })();
 
 export const reconnectDatabase = () => {

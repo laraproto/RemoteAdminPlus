@@ -1,9 +1,22 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import { Badge } from "$lib/components/ui/badge/index.js";
   import type { User, Configuration } from "$lib/types/common";
+  import trpcClient from "$lib/trpc";
+  import { goto, invalidateAll } from "$app/navigation";
+  import type { Pathname } from "$app/types";
+
+  const logout = async () => {
+    const value = await trpcClient.authed.logout.mutate();
+    console.log(value);
+    if (value?.success) {
+      invalidateAll();
+      goto(resolve(value?.redirect as Pathname));
+    }
+  };
 
   let {
     user,
@@ -31,24 +44,21 @@
                     Profile
                   </NavigationMenu.Link>
 
-                  <NavigationMenu.Link
-                    href="/api/auth/logout"
+                  <Button
+                    variant="ghost"
                     class="flex-row items-center gap-2"
+                    onclick={logout}>Logout</Button
                   >
-                    Logout
-                  </NavigationMenu.Link>
                 </li>
               </ul>
             </NavigationMenu.Content>
           </NavigationMenu.Item>
         {:else}
           <NavigationMenu.Item>
-            <NavigationMenu.Link href="/auth/register">
-              Register
-            </NavigationMenu.Link>
+            <NavigationMenu.Link href="/register">Register</NavigationMenu.Link>
           </NavigationMenu.Item>
           <NavigationMenu.Item>
-            <NavigationMenu.Link href="/auth/login">Login</NavigationMenu.Link>
+            <NavigationMenu.Link href="/login">Login</NavigationMenu.Link>
           </NavigationMenu.Item>
         {/if}
       </NavigationMenu.List>

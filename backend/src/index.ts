@@ -3,6 +3,10 @@ import { Hono } from "hono";
 import "#modules/firstrun";
 import routes from "#routes/index";
 
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+
 const app = new Hono();
 
 app.route("/", routes);

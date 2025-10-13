@@ -13,29 +13,30 @@
   import type { AppRouter } from "@remoteadminplus/backend/trpc";
 
   import trpcClient from "$lib/trpc";
-  import { goto } from "$app/navigation";
+  import { goto, invalidateAll } from "$app/navigation";
   import { resolve } from "$app/paths";
   import type { Pathname } from "$app/types";
 
   let { data }: PageProps = $props();
 
-  let databaseUrl = $state(data.firstrun?.database_hint);
-  let appName = $state(data.configuration?.appName);
-  let adminUsername = $state<string>("");
-  let adminPassword = $state<string>("");
+  let username = $state("");
+  let email = $state("");
+  let password = $state<string>("");
 
   let errorMessage = $state<string>();
 
   const handleSubmit = async () => {
     try {
-      const response = await trpcClient.firstrun.set.mutate({
-        database_url: data.firstrun?.database_hint || databaseUrl,
-        app_name: appName,
-        admin_username: adminUsername,
-        admin_password: adminPassword,
+      const response = await trpcClient.registration.register.mutate({
+        username,
+        email,
+        password,
       });
 
-      if (response?.success) goto(resolve(response.redirect as Pathname));
+      if (response?.success && "redirect" in response) {
+        await invalidateAll();
+        goto(resolve(response.redirect as Pathname));
+      }
     } catch (err) {
       if ((err as TRPCClientError<AppRouter>).cause?.message)
         errorMessage = (err as TRPCClientError<AppRouter>).cause?.message;
@@ -43,11 +44,14 @@
   };
 </script>
 
-<div class="grid h-[94vh] place-items-center">
+<div class="grid h-[92vh] place-items-center">
   <Card.Root class="w-full max-w-sm">
     <Card.Header>
-      <Card.Title>{data.configuration?.appName} Wizard</Card.Title>
-      <Card.Description>Gwa</Card.Description>
+      <Card.Title>Register</Card.Title>
+      <Card.Description>Create your account</Card.Description>
+      <Card.Action>
+        <Button variant="link" href="/login">Login</Button>
+      </Card.Action>
     </Card.Header>
     <Card.Content>
       {#if errorMessage}
@@ -63,38 +67,30 @@
       <form>
         <div class="flex flex-col gap-6">
           <div class="grid gap-2">
-            <Label for="database_url">Database URL</Label>
+            <Label for="username">Username*</Label>
+            <Input id="username" bind:value={username} required />
+          </div>
+          <div class="grid gap-2">
+            <Label for="email">Email</Label>
+            <Input id="email" bind:value={email} />
+          </div>
+          <div class="grid gap-2">
+            <Label for="password">Password*</Label>
             <Input
-              id="database_url"
-              readonly={!!data.firstrun?.database_hint}
-              bind:value={databaseUrl}
-              required
-            />
-          </div>
-          <div class="grid gap-2">
-            <Label for="app_name">App Name</Label>
-            <Input id="app_name" bind:value={appName} />
-          </div>
-          <div class="grid gap-2">
-            <Label for="admin_username">Admin Username</Label>
-            <Input id="admin_username" bind:value={adminUsername} required />
-          </div>
-          <div class="grid gap-2">
-            <Label for="admin_password">Admin Password</Label>
-            <Input
-              id="admin_password"
+              id="password"
               type="password"
-              bind:value={adminPassword}
+              bind:value={password}
               required
             />
           </div>
         </div>
       </form>
     </Card.Content>
-    <Card.Footer>
+    <Card.Footer class="flex-col gap-2">
       <Button type="submit" class="w-full" onclick={handleSubmit}
-        >Submit configuration</Button
+        >Register</Button
       >
+      <p>* Required fields</p>
     </Card.Footer>
   </Card.Root>
 </div>

@@ -14,4 +14,10 @@ declare module "*.sql" {
   export default content;
 }
 
+declare global {
+  interface BigInt {
+    toJSON(): string;
+  }
+}
+
 export {};

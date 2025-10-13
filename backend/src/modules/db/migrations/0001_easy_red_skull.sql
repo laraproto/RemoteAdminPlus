@@ -1,0 +1,1 @@
+ALTER TABLE "session" ADD COLUMN "totp_verified" boolean DEFAULT false NOT NULL;

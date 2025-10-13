@@ -15,7 +15,7 @@ const registrationRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      if (!firstRunConfig?.registration_enabled) {
+      if (!firstRunConfig?.canRegister) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "Open registration is not enabled",
@@ -89,10 +89,13 @@ const registrationRouter = router({
         };
       }
 
+
       const passwordMatch = await Bun.password.verify(
-        user.password,
         input.password,
+        user.password,
       );
+
+      console.log(passwordMatch);
 
       if (!passwordMatch) {
         return {

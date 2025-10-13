@@ -1,6 +1,6 @@
 {
-  "id": "dda681c1-e838-46eb-8a17-3f8eb7db0bf4",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "9c2c06a8-4dbf-4b9c-91ba-2b46d4809dd5",
+  "prevId": "dda681c1-e838-46eb-8a17-3f8eb7db0bf4",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -723,6 +723,13 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true
+        },
+        "totp_verified": {
+          "name": "totp_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "createdAt": {
           "name": "createdAt",

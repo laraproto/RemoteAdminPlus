@@ -21,8 +21,9 @@ export const handle: Handle = async ({ event, resolve }) => {
       emailVerified: boolean;
     } | null;
   } catch (error) {
-    if ((error as TRPCClientError<AppRouter>).message === "UNAUTHORIZED")
+    if ((error as TRPCClientError<AppRouter>).message === "UNAUTHORIZED") {
       return resolve(event);
+    }
     console.error("Error fetching user data:", error);
     event.locals.user = null;
   }

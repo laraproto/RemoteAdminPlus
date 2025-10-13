@@ -38,6 +38,12 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
     });
   }
 
+  if (!!(ctx.user.flags & UserFlags.SUPERADMIN)) {
+    return opts.next({
+      ctx,
+    });
+  }
+
   switch (typeof meta.permissionsRequired) {
     case "string": {
       const mask = UserFlags[meta.permissionsRequired];

@@ -42,6 +42,7 @@ export const session = pgTable("session", {
     withTimezone: true,
     mode: "date",
   }).notNull(),
+  totpVerified: boolean("totp_verified").notNull().default(false),
   ...timeData,
 });
 
