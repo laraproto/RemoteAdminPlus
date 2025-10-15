@@ -34,6 +34,8 @@ OAuth Config (optional but gives option to disable registration form and make oa
 SMTP Configuration (optional)
 Superadmin user creation
 
+Most of this will be added when I build a migration system for the installer, right now modifying it is annoying
+
 ## Contributing
 
 The current setup is a bit of an uhh, mess, you go into the backend folder, copy .env.example to .env, fill in the required variables, and then do the same thing in the website folder, other than you go back into the monorepo root and run `bun i`

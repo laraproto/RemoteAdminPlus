@@ -15,7 +15,7 @@ services:
     post_start:
       - command: useradd -m runner
         user: root
-      - command: psql -U ${DB_USER} -d ${DB_NAME} -c "CREATE ROLE IF NOT EXISTS runner; CREATE DATABASE runner OWNER runner;"
+      - command: psql -U ${DB_USER} -d ${DB_NAME} -c "CREATE ROLE IF NOT EXISTS runner; CREATE DATABASE remoteadminplus OWNER runner;"
         user: postgres
 
   valkey:
@@ -45,7 +45,7 @@ services:
     restart: on-failure
     environment: &env
       - NODE_ENV=production
-      - DATABASE_HINT=socket:/var/run/postgresql?db=remoteadminplus
+      - DATABASE_HINT=/var/run/postgresql
       - SERVER_API_URL=http://api:3000
       - DATA_DIR=/data
     working_dir: /app/backend
