@@ -12,7 +12,7 @@ export const appRouter = router({
   configuration: publicProcedure.query(() => {
     return {
       appName: firstRunConfig?.app_name || "RemoteAdminPlus",
-      registrationEnabled: firstRunConfig?.registration_enabled ?? false,
+      registrationEnabled: firstRunConfig?.canRegister ?? false,
     };
   }),
   authed: authedRouter,

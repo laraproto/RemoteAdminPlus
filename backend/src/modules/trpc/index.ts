@@ -1,14 +1,15 @@
 import type { Session } from "#modules/auth";
 import type { UserSelectMinimal } from "#modules/db/schema";
 import {
-  UserFlags,
-  type UserFlagKeys,
+  JointFlags,
+  type JointFlagKeys,
 } from "@remoteadminplus/shared/common/user";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { firstRunConfig } from "../firstrun";
+import superjson from "superjson";
 
 interface Meta {
-  permissionsRequired: UserFlagKeys | UserFlagKeys[] | (() => boolean);
+  permissionsRequired: JointFlagKeys | JointFlagKeys[] | (() => boolean);
 }
 
 const t = initTRPC
@@ -21,6 +22,7 @@ const t = initTRPC
     defaultMeta: {
       permissionsRequired: "USER",
     },
+    transformer: superjson,
   });
 
 export const router = t.router;
@@ -38,7 +40,9 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
     });
   }
 
-  if (!!(ctx.user.flags & UserFlags.SUPERADMIN)) {
+  // eslint can fuck off, this is how you're supposed to do it
+  // eslint-disable-next-line no-extra-boolean-cast
+  if (!!(ctx.user.flags & JointFlags.SUPERADMIN)) {
     return opts.next({
       ctx,
     });
@@ -46,7 +50,7 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
 
   switch (typeof meta.permissionsRequired) {
     case "string": {
-      const mask = UserFlags[meta.permissionsRequired];
+      const mask = JointFlags[meta.permissionsRequired];
       if (
         (ctx.user.group !== null && !!(ctx.user.group?.permissions & mask)) ||
         !!(ctx.user.flags & mask)
@@ -59,7 +63,7 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
 
       let finalMask = 0n;
       for (const perm of meta.permissionsRequired) {
-        const mask = UserFlags[perm];
+        const mask = JointFlags[perm];
         finalMask |= mask;
       }
 

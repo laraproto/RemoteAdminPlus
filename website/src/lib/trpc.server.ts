@@ -2,6 +2,7 @@ import type { AppRouter } from "@remoteadminplus/backend/trpc";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { getRequestEvent } from "$app/server";
 import { SERVER_API_URL, URL } from "$env/static/private";
+import superjson from "superjson";
 
 const client = createTRPCClient<AppRouter>({
   links: [
@@ -17,6 +18,7 @@ const client = createTRPCClient<AppRouter>({
           Authorization: session,
         };
       },
+      transformer: superjson,
     }),
   ],
 });

@@ -94,7 +94,7 @@ export const panelGroups = pgTable("panelGroups", {
     .references(() => gameGroups.uuid, { onDelete: "cascade" }),
   permissions: bigint({ mode: "bigint" })
     .notNull()
-    .default(sql`1::bigint`),
+    .default(sql`4::bigint`),
   ...timeData,
 });
 
@@ -348,6 +348,7 @@ export const userSelectMinimalWithoutGroup = userSelect.pick({
   updatedAt: true,
   flags: true,
   groupId: true,
+  emailVerified: true,
 });
 
 export const userSelectMinimal = z.object({

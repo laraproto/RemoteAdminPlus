@@ -15,11 +15,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   try {
     if (!event.cookies.get("session")) return resolve(event);
     const user = await client.authed.me.query();
-    event.locals.user = user as {
-      uuid: string;
-      username: string;
-      emailVerified: boolean;
-    } | null;
+    event.locals.user = user;
   } catch (error) {
     if ((error as TRPCClientError<AppRouter>).message === "UNAUTHORIZED") {
       return resolve(event);

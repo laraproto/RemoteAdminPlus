@@ -24,6 +24,7 @@ export async function createSession(token: string, userId?: string) {
     id: sessionId,
     userId: null,
     expiresAt: new Date(Date.now() + DAY_IN_MS * 1),
+    totpVerified: false,
   };
   if (userId) {
     session.userId = userId;
@@ -102,4 +103,5 @@ export interface Session {
   id: string;
   userId: string | null;
   expiresAt: Date;
+  totpVerified: boolean;
 }

@@ -5,9 +5,7 @@
   import { Label } from "$lib/components/ui/label";
   import { Input } from "$lib/components/ui/input";
 
-  import { CircleAlert } from "@lucide/svelte";
-
-  import type { PageProps } from "./$types";
+  import { CircleAlert, CircleCheck } from "@lucide/svelte";
 
   import { type TRPCClientError } from "@trpc/client";
   import type { AppRouter } from "@remoteadminplus/backend/trpc";
@@ -16,14 +14,14 @@
   import { goto, invalidateAll } from "$app/navigation";
   import { resolve } from "$app/paths";
   import type { Pathname } from "$app/types";
-
-  let { data }: PageProps = $props();
+  import Head from "$lib/components/front/Head.svelte";
 
   let username = $state("");
   let email = $state("");
   let password = $state<string>("");
 
-  let errorMessage = $state<string>();
+  let message = $state<string>();
+  let success = $state<boolean>();
 
   const handleSubmit = async () => {
     try {
@@ -33,16 +31,23 @@
         password,
       });
 
+      message = response?.message;
+      success = response?.success;
+
       if (response?.success && "redirect" in response) {
         await invalidateAll();
-        goto(resolve(response.redirect as Pathname));
+        setTimeout(() => {
+          goto(resolve(response.redirect as Pathname));
+        }, 2000);
       }
     } catch (err) {
       if ((err as TRPCClientError<AppRouter>).cause?.message)
-        errorMessage = (err as TRPCClientError<AppRouter>).cause?.message;
+        message = (err as TRPCClientError<AppRouter>).cause?.message;
     }
   };
 </script>
+
+<Head title="Register" />
 
 <div class="grid h-[92vh] place-items-center">
   <Card.Root class="w-full max-w-sm">
@@ -54,12 +59,18 @@
       </Card.Action>
     </Card.Header>
     <Card.Content>
-      {#if errorMessage}
-        <Alert.Alert class="mt-4">
-          <CircleAlert />
-          <Alert.Title>Validation Errors</Alert.Title>
+      {#if message}
+        <Alert.Alert class="mb-6">
+          {#if !success}
+            <CircleAlert />
+          {:else}
+            <CircleCheck />
+          {/if}
+          <Alert.Title
+            >{!success ? "Validation Errors" : "Messages"}</Alert.Title
+          >
           <Alert.Description>
-            {errorMessage}
+            {message}
           </Alert.Description>
         </Alert.Alert>
       {/if}

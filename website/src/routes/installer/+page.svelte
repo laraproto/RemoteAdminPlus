@@ -4,6 +4,7 @@
   import { Button } from "$lib/components/ui/button";
   import { Label } from "$lib/components/ui/label";
   import { Input } from "$lib/components/ui/input";
+  import Head from "$lib/components/front/Head.svelte";
 
   import { CircleAlert } from "@lucide/svelte";
 
@@ -42,6 +43,8 @@
     }
   };
 </script>
+
+<Head title="Login" />
 
 <div class="grid h-[94vh] place-items-center">
   <Card.Root class="w-full max-w-sm">

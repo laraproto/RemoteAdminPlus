@@ -44,10 +44,17 @@
                     Profile
                   </NavigationMenu.Link>
 
-                  <Button
-                    variant="ghost"
+                  <NavigationMenu.Link
+                    href="/profile/settings"
                     class="flex-row items-center gap-2"
-                    onclick={logout}>Logout</Button
+                  >
+                    Settings
+                  </NavigationMenu.Link>
+
+                  <NavigationMenu.Link
+                    href="javascript:void"
+                    class="flex-row items-center gap-2"
+                    onclick={logout}>Logout</NavigationMenu.Link
                   >
                 </li>
               </ul>

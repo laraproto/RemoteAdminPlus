@@ -11,6 +11,9 @@
   if (data.user !== undefined) {
     setContext("user", data.user);
   }
+  if (data.configuration !== undefined) {
+    setContext("configuration", data.configuration);
+  }
 </script>
 
 <Toaster />

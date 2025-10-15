@@ -89,7 +89,16 @@ export type UserFlagKeys = keyof typeof UserFlags;
 
 // Roles don't have anything unique yet, might in the future so it's better to have this
 export const RoleFlags = {
+  GROUP: 1n << 2n,
+
   ...Permissions,
 } as const;
 
 export type RoleFlagKeys = keyof typeof RoleFlags;
+
+export const JointFlags = {
+  ...UserFlags,
+  ...RoleFlags,
+} as const;
+
+export type JointFlagKeys = keyof typeof JointFlags;
