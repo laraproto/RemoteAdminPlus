@@ -8,4 +8,4 @@
 
 <Head title="Profile Settings" />
 
-<h1 class="text-2xl">Hello {user.username}</h1>
+<h1 class="mb-6 text-center text-3xl font-bold">Profile Settings</h1>

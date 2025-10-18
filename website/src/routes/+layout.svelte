@@ -5,6 +5,7 @@
   import { ModeWatcher } from "mode-watcher";
   import type { LayoutProps } from "./$types";
   import { setContext } from "svelte";
+  import { adaptiveNavContent } from "$lib/context/adaptive-nav";
 
   let { children, data }: LayoutProps = $props();
 
@@ -14,13 +15,16 @@
   if (data.configuration !== undefined) {
     setContext("configuration", data.configuration);
   }
+
+  adaptiveNavContent.set(null);
 </script>
 
 <Toaster />
 <ModeWatcher />
-<main>
+
+<div class="bg-background z-10 flex min-h-svh flex-col">
   <Navbar user={data.user} configuration={data.configuration} />
-  <article>
+  <main>
     {@render children()}
-  </article>
-</main>
+  </main>
+</div>
