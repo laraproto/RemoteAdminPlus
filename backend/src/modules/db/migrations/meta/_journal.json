@@ -15,6 +15,13 @@
       "when": 1760346521499,
       "tag": "0001_easy_red_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760809273239,
+      "tag": "0002_exotic_midnight",
+      "breakpoints": true
     }
   ]
 }

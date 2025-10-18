@@ -22,7 +22,7 @@
 <Toaster />
 <ModeWatcher />
 
-<div class="bg-background z-10 flex min-h-svh flex-col">
+<div class="bg-background z-10 flex min-h-svh flex-col overflow-auto">
   <Navbar user={data.user} configuration={data.configuration} />
   <main>
     {@render children()}

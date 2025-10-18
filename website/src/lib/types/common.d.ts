@@ -20,6 +20,7 @@ export const User = z.object({
   groupId: z.uuid().nullable(),
   flags: z.bigint().default(UserFlags.USER),
   group: Group.nullable(),
+  displayName: z.string().min(3).max(80).nullable(),
 });
 
 export type User = z.infer<typeof User>;

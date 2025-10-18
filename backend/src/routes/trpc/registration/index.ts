@@ -89,7 +89,6 @@ const registrationRouter = router({
         };
       }
 
-
       const passwordMatch = await Bun.password.verify(
         input.password,
         user.password,

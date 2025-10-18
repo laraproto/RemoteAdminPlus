@@ -22,6 +22,7 @@ const timeData = {
 export const user = pgTable("users", {
   uuid: uuid("id").primaryKey().defaultRandom(),
   username: varchar("username", { length: 255 }).notNull().unique(),
+  displayName: varchar("display_name", { length: 80 }),
   password: varchar("password", { length: 512 }).notNull(),
   email: varchar("email", { length: 255 }).unique().$type<string | null>(),
   emailVerified: boolean("email_verified").notNull().default(false),
@@ -349,6 +350,7 @@ export const userSelectMinimalWithoutGroup = userSelect.pick({
   flags: true,
   groupId: true,
   emailVerified: true,
+  displayName: true,
 });
 
 export const userSelectMinimal = z.object({
