@@ -19,7 +19,9 @@
 </h1>
 
 <button onclick={buttonClick}>Click me</button>
-<p>{JSON.stringify(trpcResult)}</p>
+{#if trpcResult}
+  <p>{JSON.stringify(trpcResult)}</p>
+{/if}
 
 <style>
 </style>
