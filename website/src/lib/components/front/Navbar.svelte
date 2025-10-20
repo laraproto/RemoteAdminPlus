@@ -62,7 +62,7 @@
                   <NavigationMenu.Content>
                     <ul class="grid w-[150px] gap-4 p-2">
                       {#each adaptiveNavContentState as item, i (item)}
-                        <li>
+                        <li value={i.toString()}>
                           <NavigationMenu.Link
                             active={page.url.pathname === item.href}
                             href={item.href}>{item.text}</NavigationMenu.Link
@@ -121,11 +121,13 @@
                   </NavigationMenu.Content>
                 </NavigationMenu.Item>
               {:else}
-                <NavigationMenu.Item>
-                  <NavigationMenu.Link href="/register"
-                    >Register</NavigationMenu.Link
-                  >
-                </NavigationMenu.Item>
+                {#if configuration?.registrationEnabled}
+                  <NavigationMenu.Item>
+                    <NavigationMenu.Link href="/register"
+                      >Register</NavigationMenu.Link
+                    >
+                  </NavigationMenu.Item>
+                {/if}
                 <NavigationMenu.Item>
                   <NavigationMenu.Link href="/login">Login</NavigationMenu.Link>
                 </NavigationMenu.Item>

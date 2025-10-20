@@ -8,7 +8,7 @@
   const buttonClick = async () => {
     trpcResult = await client.authed.user.me.query();
 
-    console.log(trpcResult);
+    console.log($state.snapshot(trpcResult));
   };
 </script>
 

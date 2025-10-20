@@ -33,6 +33,7 @@ export const actions: Actions = {
           message: "Failed to update profile settings.",
         });
       }
+      return message(form, "Settings updated successfully!");
     } catch (err) {
       console.error("Error updating profile settings:", err);
       return fail(500, {
@@ -40,7 +41,5 @@ export const actions: Actions = {
         message: "An error occurred while updating settings.",
       });
     }
-
-    return message(form, "Settings updated successfully!");
   },
 };

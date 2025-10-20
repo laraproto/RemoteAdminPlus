@@ -15,6 +15,9 @@
   import { resolve } from "$app/paths";
   import type { Pathname } from "$app/types";
   import Head from "$lib/components/front/Head.svelte";
+  import type { PageProps } from "./$types";
+
+  let { data }: PageProps = $props();
 
   let username = $state("");
   let password = $state<string>("");
@@ -52,9 +55,11 @@
     <Card.Header>
       <Card.Title>Login</Card.Title>
       <Card.Description>Access your account</Card.Description>
-      <Card.Action>
-        <Button variant="link" href="/register">Register</Button>
-      </Card.Action>
+      {#if data.configuration?.registrationEnabled}
+        <Card.Action>
+          <Button variant="link" href="/register">Register</Button>
+        </Card.Action>
+      {/if}
     </Card.Header>
     <Card.Content>
       {#if message}
