@@ -14,10 +14,6 @@
       text: "Account",
       href: "/profile/settings/account",
     },
-    {
-      text: "Security",
-      href: "/profile/settings/security",
-    },
   ]}
 />
 

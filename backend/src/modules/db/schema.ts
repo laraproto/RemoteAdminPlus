@@ -21,8 +21,8 @@ const timeData = {
 
 export const user = pgTable("users", {
   uuid: uuid("id").primaryKey().defaultRandom(),
-  username: varchar("username", { length: 255 }).notNull().unique(),
-  displayName: varchar("display_name", { length: 80 }),
+  username: varchar("username", { length: 18 }).notNull().unique(),
+  displayName: varchar("display_name", { length: 25 }),
   password: varchar("password", { length: 512 }).notNull(),
   email: varchar("email", { length: 255 }).unique().$type<string | null>(),
   emailVerified: boolean("email_verified").notNull().default(false),

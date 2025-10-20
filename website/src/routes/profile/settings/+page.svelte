@@ -1,59 +1,28 @@
 <script lang="ts">
-  import { getContext } from "svelte";
-  import type { User } from "$lib/types/common";
-  import * as Alert from "$lib/components/ui/alert";
   import * as Card from "$lib/components/ui/card";
   import * as Avatar from "$lib/components/ui/avatar";
-  import { Button } from "$lib/components/ui/button";
-  import { Label } from "$lib/components/ui/label";
-  import { Input } from "$lib/components/ui/input";
   import Head from "$lib/components/front/Head.svelte";
-
-  import { CircleAlert, CircleCheck } from "@lucide/svelte";
-
-  import { type TRPCClientError } from "@trpc/client";
-  import type { AppRouter } from "@remoteadminplus/backend/trpc";
-
-  import trpcClient from "$lib/trpc";
-  import { goto, invalidateAll } from "$app/navigation";
-  import { resolve } from "$app/paths";
-  import type { Pathname } from "$app/types";
-
+  import * as Form from "$lib/components/ui/form/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
+  import type { PageData } from "./$types";
+  import { profileSettingsSchema } from "./schema";
+  import { superForm } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
   import { splitName } from "$lib/avatar-fallback";
+  import { invalidateAll } from "$app/navigation";
+  import { toast } from "svelte-sonner";
 
-  const user = getContext<User>("user");
+  let { data }: { data: PageData } = $props();
 
-  let newUser = $state({
-    username: user.username,
-    displayName: user.displayName,
+  const form = superForm(data.form, {
+    validators: zod4Client(profileSettingsSchema),
+    onUpdated: async ({ form }) => {
+      invalidateAll();
+      toast(form.message);
+    },
   });
 
-  let message = $state<string>();
-  let success = $state<boolean>();
-
-  const handleSubmit = async () => {
-    /*try {
-      const response = await trpcClient.registration.register.mutate({
-        username,
-        email,
-        password,
-      });
-
-      message = response?.message;
-      success = response?.success;
-
-      if (response?.success && "redirect" in response) {
-        await invalidateAll();
-        setTimeout(() => {
-          goto(resolve(response.redirect as Pathname));
-        }, 2000);
-      }
-    } catch (err) {
-      if ((err as TRPCClientError<AppRouter>).cause?.message)
-        message = (err as TRPCClientError<AppRouter>).cause?.message;
-        }*/
-    console.log($state.snapshot(newUser));
-  };
+  const { form: formData, enhance } = form;
 </script>
 
 <Head title="Public Profile Settings" />
@@ -64,45 +33,38 @@
       <Card.Title>Public Profile</Card.Title>
       <Card.Description>Manage how you show up to others.</Card.Description>
     </Card.Header>
-    <Card.Content>
-      {#if message}
-        <Alert.Alert class="mb-6">
-          {#if !success}
-            <CircleAlert />
-          {:else}
-            <CircleCheck />
-          {/if}
-          <Alert.Title
-            >{!success ? "Validation Errors" : "Messages"}</Alert.Title
-          >
-          <Alert.Description>
-            {message}
-          </Alert.Description>
-        </Alert.Alert>
-      {/if}
-      <form>
+    <form method="POST" use:enhance>
+      <Card.Content>
         <div class="flex flex-row">
           <Avatar.Root class="h-40 w-40">
             <Avatar.Fallback class="text-3xl"
-              >{splitName(user.displayName ?? user.username)}</Avatar.Fallback
+              >{splitName(
+                data.user.displayName ?? data.user.username,
+              )}</Avatar.Fallback
             >
           </Avatar.Root>
           <ul class="ml-6 flex flex-col justify-center gap-2">
             <li class="grid gap-2">
-              <Label for="username">Username:</Label>
-              <Input id="username" bind:value={newUser.username} required />
-            </li>
-            <li class="grid gap-2">
-              <Label for="displayname">Display Name:</Label>
-              <Input id="displayname" bind:value={newUser.displayName} />
+              <Form.Field {form} name="displayName">
+                <Form.Control>
+                  {#snippet children({ props })}
+                    <Form.Label>Display Name</Form.Label>
+                    <Input {...props} bind:value={$formData.displayName} />
+                  {/snippet}
+                </Form.Control>
+                <Form.Description
+                  >Nicer name that will show on the panel, shows username if not
+                  set</Form.Description
+                >
+                <Form.FieldErrors />
+              </Form.Field>
             </li>
           </ul>
         </div>
-      </form>
-    </Card.Content>
-    <Card.Footer class="flex justify-end">
-      <Button type="submit" class="" onclick={handleSubmit}>Save Changes</Button
-      >
-    </Card.Footer>
+      </Card.Content>
+      <Card.Footer class="flex justify-end">
+        <Form.Button>Submit</Form.Button>
+      </Card.Footer>
+    </form>
   </Card.Root>
 </div>

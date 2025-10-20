@@ -9,7 +9,7 @@ const registrationRouter = router({
   register: registrationProcedure
     .input(
       z.object({
-        username: z.string().min(3).max(32),
+        username: z.string().min(3).max(18),
         password: z.string().min(8).max(128),
         email: z.email().min(8).max(128).nullable(),
       }),

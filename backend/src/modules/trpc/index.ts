@@ -15,7 +15,7 @@ interface Meta {
 const t = initTRPC
   .context<{
     session: Session;
-    user: UserSelectMinimal | null;
+    user: UserSelectMinimal;
   }>()
   .meta<Meta>()
   .create({

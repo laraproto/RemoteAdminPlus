@@ -6,7 +6,7 @@
   let trpcResult = $state<User | null>(null);
 
   const buttonClick = async () => {
-    trpcResult = await client.authed.me.query();
+    trpcResult = await client.authed.user.me.query();
 
     console.log(trpcResult);
   };
