@@ -14,6 +14,7 @@ router.use(
     createContext: (opts, c) => ({
       session: c.get("session"),
       user: c.get("user"),
+      getSessionToken: () => c.req.header("Authorization"),
     }),
   }),
 );

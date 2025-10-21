@@ -41,17 +41,21 @@ const userRouter = router({
         };
       }
     }),
-    updateUsername: publicProcedure.input(z.object({
-      username: z.string().min(3).max(18).regex(usernameRegex),
-      password: z.string().min(8).max(128),
-    })).mutation(async ({ ctx, input }) => {
+  updateUsername: publicProcedure
+    .input(
+      z.object({
+        username: z.string().min(3).max(18).regex(usernameRegex),
+        password: z.string().min(8).max(128),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
       try {
         const userRecord = await db.query.user.findFirst({
           where: (users, { eq }) => eq(users.uuid, ctx.user.uuid),
           columns: {
             uuid: true,
-            password: true
-          }
+            password: true,
+          },
         });
 
         if (!userRecord) {
@@ -59,14 +63,17 @@ const userRouter = router({
         }
 
         if (!(await password.verify(input.password, userRecord.password))) {
-          return { success: false, message: "The provided password is incorrect." };
+          return {
+            success: false,
+            message: "The provided password is incorrect.",
+          };
         }
 
         const existingUser = await db.query.user.findFirst({
           where: (users, { eq }) => eq(users.username, input.username),
           columns: {
-            uuid: true
-          }
+            uuid: true,
+          },
         });
 
         if (existingUser) {
@@ -79,12 +86,118 @@ const userRouter = router({
           .where(eq(schema.user.uuid, ctx.user.uuid))
           .returning();
 
-          return {
-            success: updatedUsers.length > 0,
-            message: updatedUsers.length > 0 ? "Username updated successfully." : "Failed to update username."
-          }
+        return {
+          success: updatedUsers.length > 0,
+          message:
+            updatedUsers.length > 0
+              ? "Username updated successfully."
+              : "Failed to update username.",
+        };
       } catch (err) {
         console.error("Error updating username:", err);
+        return { success: false };
+      }
+    }),
+  updateEmail: publicProcedure
+    .input(
+      z.object({
+        email: z.email(),
+        password: z.string().min(8).max(128),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existingUser = await db.query.user.findFirst({
+        where: (users, { eq }) => eq(users.email, input.email),
+      });
+
+      if (existingUser) {
+        return { success: false, message: "This email is already in use." };
+      }
+
+      const userRecord = await db.query.user.findFirst({
+        where: (users, { eq }) => eq(users.uuid, ctx.user.uuid),
+        columns: {
+          uuid: true,
+          password: true,
+        },
+      });
+
+      if (!userRecord) {
+        return { success: false, message: "We couldn't find your user." };
+      }
+
+      if (!(await password.verify(input.password, userRecord.password))) {
+        return {
+          success: false,
+          message: "The provided password is incorrect.",
+        };
+      }
+
+      try {
+        const updatedUsers = await db
+          .update(schema.user)
+          .set({ email: input.email })
+          .where(eq(schema.user.uuid, ctx.user.uuid))
+          .returning();
+
+        return {
+          success: updatedUsers.length > 0,
+          message:
+            updatedUsers.length > 0
+              ? "Email updated successfully."
+              : "Failed to update email.",
+        };
+      } catch (err) {
+        console.error("Error updating email:", err);
+        return { success: false };
+      }
+    }),
+  updatePassword: publicProcedure
+    .input(
+      z
+        .object({
+          currentPassword: z.string().min(8).max(128),
+          newPassword: z.string().min(8).max(128),
+          newPasswordConfirm: z.string().min(8).max(128),
+        })
+        .refine((data) => {
+          return data.newPassword === data.newPasswordConfirm;
+        }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await db.query.user.findFirst({
+        where: (users, { eq }) => eq(users.uuid, ctx.user.uuid),
+        columns: {
+          uuid: true,
+          password: true,
+        },
+      });
+
+      if (!user) {
+        return { success: false, message: "User not found." };
+      }
+
+      if (!(await password.verify(input.currentPassword, user.password))) {
+        return { success: false, message: "Current password is incorrect." };
+      }
+
+      try {
+        const hashedNewPassword = await password.hash(input.newPassword);
+        const updatedUsers = await db
+          .update(schema.user)
+          .set({ password: hashedNewPassword })
+          .where(eq(schema.user.uuid, ctx.user.uuid))
+          .returning();
+
+        return {
+          success: updatedUsers.length > 0,
+          message:
+            updatedUsers.length > 0
+              ? "Password updated successfully."
+              : "Failed to update password.",
+        };
+      } catch (err) {
+        console.error("Error updating password:", err);
         return { success: false };
       }
     }),

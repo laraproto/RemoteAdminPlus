@@ -1,4 +1,5 @@
 import { publicProcedure, router } from "#modules/trpc";
+import * as auth from "#modules/auth";
 import { z } from "zod";
 import authedRouter from "#routes/trpc/authed";
 import firstrunRouter from "#routes/trpc/firstrun";
@@ -8,6 +9,24 @@ import { firstRunConfig } from "#modules/firstrun";
 export const appRouter = router({
   hello: publicProcedure.input(z.string().nullish()).query(({ input, ctx }) => {
     return `Hello ${input ?? "world"}! Your session is ${JSON.stringify(ctx.session)}`;
+  }),
+  session: publicProcedure.mutation(async ({ ctx }) => {
+    const authHeader = ctx.getSessionToken();
+    if (authHeader && ctx.session) {
+      return {
+        valid: true,
+        session: ctx.session,
+        authToken: authHeader,
+      };
+    }
+
+    const sessionToken = auth.generateSessionToken();
+    const session = await auth.createSession(sessionToken);
+    return {
+      valid: false,
+      session,
+      authToken: sessionToken,
+    };
   }),
   configuration: publicProcedure.query(() => {
     return {

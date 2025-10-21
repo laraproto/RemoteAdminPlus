@@ -51,19 +51,13 @@ const sessionMiddleware = createMiddleware<{
     case undefined: {
       if (authToken === undefined) break;
       // No auth method, but auth token is present, this is alternative user auth
-      let {
+      const {
         session: authSession,
-        // eslint-disable-next-line prefer-const
         user,
       }: { session: auth.Session | null; user: UserSelectMinimal | null } =
         await auth.validateSessionToken(authToken);
 
-      if (authSession === null) {
-        const sessionToken = auth.generateSessionToken();
-        authSession = await auth.createSession(sessionToken);
-        setCookie(c, "session", sessionToken, {
-          expires: authSession.expiresAt,
-        });
+      if (authSession !== null) {
         c.set("session", authSession);
       }
 

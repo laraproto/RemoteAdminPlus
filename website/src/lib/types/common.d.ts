@@ -14,6 +14,7 @@ export const Group = z.object({
 export const User = z.object({
   uuid: z.uuid(),
   username: z.string(),
+  email: z.email().nullable(),
   emailVerified: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date().nullable(),

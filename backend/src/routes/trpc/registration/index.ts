@@ -25,7 +25,10 @@ const registrationRouter = router({
 
       const existingUser = await db.query.user.findFirst({
         where: (user, { eq, or }) =>
-          or(eq(user.username, input.username), eq(user.email, input.email)),
+          or(
+            eq(user.username, input.username),
+            eq(user.email, input.email ?? ""),
+          ),
       });
 
       if (existingUser) {

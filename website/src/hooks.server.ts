@@ -13,6 +13,27 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   try {
+    const sessionCheck = await client.session.mutate();
+    if (sessionCheck.valid) {
+      event.cookies.set("session", sessionCheck.authToken, {
+        httpOnly: true,
+        path: "/",
+        sameSite: true,
+        expires: sessionCheck.session.expiresAt,
+      });
+    } else if (!sessionCheck.valid) {
+      event.cookies.set("session", sessionCheck.authToken, {
+        httpOnly: true,
+        path: "/",
+        sameSite: true,
+        expires: sessionCheck.session.expiresAt,
+      });
+    }
+  } catch (err) {
+    console.error("Error validating/creating session:", err);
+  }
+
+  try {
     if (!event.cookies.get("session")) return resolve(event);
     const user = await client.authed.user.me.query();
     event.locals.user = user;

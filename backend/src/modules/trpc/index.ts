@@ -16,6 +16,7 @@ const t = initTRPC
   .context<{
     session: Session;
     user: UserSelectMinimal;
+    getSessionToken: () => string | undefined;
   }>()
   .meta<Meta>()
   .create({

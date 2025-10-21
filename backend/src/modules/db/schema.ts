@@ -24,7 +24,7 @@ export const user = pgTable("users", {
   username: varchar("username", { length: 18 }).notNull().unique(),
   displayName: varchar("display_name", { length: 25 }),
   password: varchar("password", { length: 512 }).notNull(),
-  email: varchar("email", { length: 255 }).unique().$type<string | null>(),
+  email: varchar("email", { length: 255 }).unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   totpSecret: varchar("totp_secret", { length: 64 }),
   flags: bigint({ mode: "bigint" })
@@ -349,6 +349,7 @@ export const userSelectMinimalWithoutGroup = userSelect.pick({
   updatedAt: true,
   flags: true,
   groupId: true,
+  email: true,
   emailVerified: true,
   displayName: true,
 });
