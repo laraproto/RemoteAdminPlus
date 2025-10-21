@@ -22,6 +22,13 @@
       "when": 1760809273239,
       "tag": "0002_exotic_midnight",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1761075953604,
+      "tag": "0003_volatile_xorn",
+      "breakpoints": true
     }
   ]
 }

@@ -24,8 +24,6 @@ export const user = pgTable("users", {
   username: varchar("username", { length: 18 }).notNull().unique(),
   displayName: varchar("display_name", { length: 25 }),
   password: varchar("password", { length: 512 }).notNull(),
-  email: varchar("email", { length: 255 }).unique(),
-  emailVerified: boolean("email_verified").notNull().default(false),
   totpSecret: varchar("totp_secret", { length: 64 }),
   flags: bigint({ mode: "bigint" })
     .notNull()
@@ -58,7 +56,6 @@ export const userRelations = relations(user, ({ one, many }) => ({
   connections: many(connections),
   bans: many(playerBans, { relationName: "banAuthor" }),
   warns: many(playerWarns, { relationName: "warnAuthor" }),
-  emailVerifications: many(emailVerifications),
   passwordResets: many(passwordResets),
   player: many(player),
   group: one(panelGroups, {
@@ -299,26 +296,6 @@ export const servers = pgTable("serverApiKey", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const emailVerifications = pgTable("emailVerifications", {
-  uuid: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => user.uuid, { onDelete: "cascade" }),
-  email: varchar("email", { length: 255 }).notNull(),
-  token: varchar("token", { length: 64 }).notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-});
-
-export const emailVerificationsRelations = relations(
-  emailVerifications,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [emailVerifications.userId],
-      references: [user.uuid],
-    }),
-  }),
-);
-
 export const passwordResets = pgTable("passwordResets", {
   uuid: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
@@ -349,8 +326,6 @@ export const userSelectMinimalWithoutGroup = userSelect.pick({
   updatedAt: true,
   flags: true,
   groupId: true,
-  email: true,
-  emailVerified: true,
   displayName: true,
 });
 

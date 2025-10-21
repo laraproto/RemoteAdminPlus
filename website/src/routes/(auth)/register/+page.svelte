@@ -17,7 +17,6 @@
   import Head from "$lib/components/front/Head.svelte";
 
   let username = $state("");
-  let email = $state("");
   let password = $state<string>("");
 
   let message = $state<string>();
@@ -27,7 +26,6 @@
     try {
       const response = await trpcClient.registration.register.mutate({
         username,
-        email,
         password,
       });
 
@@ -80,10 +78,6 @@
           <div class="grid gap-2">
             <Label for="username">Username*</Label>
             <Input id="username" bind:value={username} required />
-          </div>
-          <div class="grid gap-2">
-            <Label for="email">Email</Label>
-            <Input id="email" bind:value={email} />
           </div>
           <div class="grid gap-2">
             <Label for="password">Password*</Label>

@@ -25,7 +25,6 @@
   },
   "workspaces": [
     "website",
-    "email",
     "backend",
     "shared"
   ],

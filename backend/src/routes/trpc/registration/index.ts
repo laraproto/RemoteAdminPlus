@@ -12,7 +12,6 @@ const registrationRouter = router({
       z.object({
         username: z.string().min(3).max(18).regex(usernameRegex),
         password: z.string().min(8).max(128),
-        email: z.email().min(8).max(128).nullable(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -24,11 +23,7 @@ const registrationRouter = router({
       }
 
       const existingUser = await db.query.user.findFirst({
-        where: (user, { eq, or }) =>
-          or(
-            eq(user.username, input.username),
-            eq(user.email, input.email ?? ""),
-          ),
+        where: (user, { eq, or }) => or(eq(user.username, input.username)),
       });
 
       if (existingUser) {
@@ -46,7 +41,6 @@ const registrationRouter = router({
           .values({
             username: input.username,
             password: password_hashed,
-            email: input.email,
           })
           .returning({
             uuid: schema.user.uuid,
@@ -82,8 +76,7 @@ const registrationRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       const user = await db.query.user.findFirst({
-        where: (user, { or, eq }) =>
-          or(eq(user.username, input.username), eq(user.email, input.username)),
+        where: (user, { or, eq }) => or(eq(user.username, input.username)),
       });
 
       if (!user) {
