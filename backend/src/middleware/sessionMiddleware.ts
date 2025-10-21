@@ -90,7 +90,12 @@ const sessionMiddleware = createMiddleware<{
   if (authSession === null) {
     const sessionToken = auth.generateSessionToken();
     authSession = await auth.createSession(sessionToken);
-    setCookie(c, "session", sessionToken, { expires: authSession.expiresAt });
+    setCookie(c, "session", sessionToken, {
+      expires: authSession.expiresAt,
+      httpOnly: true,
+      sameSite: "Strict",
+      path: "/",
+    });
     c.set("session", authSession);
     newlyAssigned = true;
   }
