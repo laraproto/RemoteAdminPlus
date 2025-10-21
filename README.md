@@ -4,15 +4,15 @@ RemoteAdminPlus is an attempt at an open source self-hostable panel to improve t
 
 ## Roadmap
 
-- [ ] Authentication (like 70% of the way there right now)
-- [ ] Multi-factor authentication
-- [ ] Permissions
+- [x] Authentication
+- [ ] Multi-factor authentication (maybe later)
+- [ ] Permissions (basis implemented but ui and group stuff lacking)
 - [ ] User invites
 - [x] First setup wizard
-- [ ] OAuth support
+- [ ] OAuth support (maybe later, will settle for an account linking system via plugin)
 - [ ] Account Linking
 - [ ] Banning, Warnings
-- [ ] Leave of absence system
+- [ ] Leave of absence system (activity handling will need to get done by the people whose job it is to do)
 
 ## Implementation plans
 
@@ -24,6 +24,8 @@ RemoteAdminPlus is an attempt at an open source self-hostable panel to improve t
   - Permissions can be given to both roles and users, group perms will be checked before user perms, but you can't give a user a role and then set a per user perm to take away that perm, at that point just make a new role or something
 - User Invites
   - Hehe random bytes to hex go brrr
+- Plugins for panel
+  - Plugins are going to be added sometime but right now I can finish the web stage and ship this with demo data, I don't expect a plugin to take long to develop but more time than I have
 
 ## First Run Wizard form
 
