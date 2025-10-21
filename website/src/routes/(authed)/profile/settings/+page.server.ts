@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals: { user } }) => {
   return { form };
 };
 
-export const actions: Actions = {
+export const actions = {
   default: async ({ request }) => {
     const form = await superValidate(request, zod4(profileSettingsSchema));
 
@@ -28,7 +28,7 @@ export const actions: Actions = {
         displayName: form.data.displayName,
       });
       if (!updateResult.success) {
-        return fail(500, {
+        return fail(400, {
           form,
           message: "Failed to update profile settings.",
         });
@@ -42,4 +42,4 @@ export const actions: Actions = {
       });
     }
   },
-};
+} satisfies Actions;

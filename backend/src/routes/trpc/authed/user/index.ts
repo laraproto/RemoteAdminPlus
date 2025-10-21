@@ -3,6 +3,8 @@ import { invalidateSession } from "#modules/auth/index";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db, schema } from "#modules/db";
+import { usernameRegex } from "@remoteadminplus/shared/common/user";
+import { password } from "bun";
 
 const userRouter = router({
   me: publicProcedure.query(({ ctx }) => ctx.user),
@@ -37,6 +39,53 @@ const userRouter = router({
         return {
           success: false,
         };
+      }
+    }),
+    updateUsername: publicProcedure.input(z.object({
+      username: z.string().min(3).max(18).regex(usernameRegex),
+      password: z.string().min(8).max(128),
+    })).mutation(async ({ ctx, input }) => {
+      try {
+        const userRecord = await db.query.user.findFirst({
+          where: (users, { eq }) => eq(users.uuid, ctx.user.uuid),
+          columns: {
+            uuid: true,
+            password: true
+          }
+        });
+
+        if (!userRecord) {
+          return { success: false, message: "We couldn't find your user." };
+        }
+
+        if (!(await password.verify(input.password, userRecord.password))) {
+          return { success: false, message: "The provided password is incorrect." };
+        }
+
+        const existingUser = await db.query.user.findFirst({
+          where: (users, { eq }) => eq(users.username, input.username),
+          columns: {
+            uuid: true
+          }
+        });
+
+        if (existingUser) {
+          return { success: false, message: "This username is already taken." };
+        }
+
+        const updatedUsers = await db
+          .update(schema.user)
+          .set({ username: input.username })
+          .where(eq(schema.user.uuid, ctx.user.uuid))
+          .returning();
+
+          return {
+            success: updatedUsers.length > 0,
+            message: updatedUsers.length > 0 ? "Username updated successfully." : "Failed to update username."
+          }
+      } catch (err) {
+        console.error("Error updating username:", err);
+        return { success: false };
       }
     }),
 });

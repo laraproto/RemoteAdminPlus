@@ -4,12 +4,13 @@ import { db, schema } from "#modules/db";
 import * as auth from "#modules/auth";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { usernameRegex } from "@remoteadminplus/shared/common/user";
 
 const registrationRouter = router({
   register: registrationProcedure
     .input(
       z.object({
-        username: z.string().min(3).max(18),
+        username: z.string().min(3).max(18).regex(usernameRegex),
         password: z.string().min(8).max(128),
         email: z.email().min(8).max(128).nullable(),
       }),

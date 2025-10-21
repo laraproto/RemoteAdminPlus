@@ -1,3 +1,5 @@
+export const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+
 export const Permissions = {
   // View warnings
   VIEW_WARNINGS: 1n << 3n,
