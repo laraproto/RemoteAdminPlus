@@ -1,7 +1,12 @@
 import { Queue } from "bullmq";
 import type { Bans } from "#modules/db/schema";
+import { redis as connection } from "#modules/redis";
+import { REDIS_PREFIX } from "#modules/config";
 
-export const bansQueue = new Queue("bans");
+export const bansQueue = new Queue("bans", {
+  connection,
+  prefix: REDIS_PREFIX,
+});
 
 export async function scheduleBan(ban: Bans) {
   if (ban.type === "permanent") {

@@ -1,9 +1,14 @@
 import { Queue } from "bullmq";
 import type { Warns } from "#modules/db/schema";
+import { redis as connection } from "#modules/redis";
+import { REDIS_PREFIX } from "#modules/config";
 
-export const warnsQueue = new Queue("warns");
+export const warnsQueue = new Queue("warns", {
+  connection,
+  prefix: REDIS_PREFIX,
+});
 
-export async function scheduleBan(warn: Warns) {
+export async function scheduleWarn(warn: Warns) {
   if (warn.type === "major" || warn.type === "minor") {
     console.log("This warn is permanent, expiry will not get scheduled");
     return;

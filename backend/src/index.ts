@@ -1,5 +1,6 @@
 import { HOSTNAME, PORT } from "#modules/config";
 import { Hono } from "hono";
+import "#modules/scheduler";
 import "#modules/firstrun";
 import routes from "#routes/index";
 
