@@ -1,8 +1,7 @@
+import * as auth from "#modules/auth";
 import { firstRunConfig } from "#modules/firstrun";
 import { registrationProcedure, router } from "#modules/trpc/index";
 import { db, schema } from "#modules/db";
-import * as auth from "#modules/auth";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { usernameRegex } from "@remoteadminplus/shared/common/user";
 
@@ -16,10 +15,10 @@ const registrationRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       if (!firstRunConfig?.canRegister) {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Open registration is not enabled",
-        });
+        return {
+          success: false,
+          message: "Registrations are disabled",
+        };
       }
 
       const existingUser = await db.query.user.findFirst({
@@ -48,7 +47,10 @@ const registrationRouter = router({
 
         // Make typescript happy
         if (!newUser[0]) {
-          return;
+          return {
+            success: false,
+            message: "An error occurred during registration",
+          };
         }
 
         auth.setSessionUser(ctx.session.id, newUser[0].uuid);
@@ -59,12 +61,11 @@ const registrationRouter = router({
           message: "Registration success, you should be getting redirected now",
         };
       } catch (err) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message:
-            "Failed to create user, this should never happen, yet it did somehow",
-          cause: err,
-        });
+        console.error("Error during user registration:", err);
+        return {
+          success: false,
+          message: "An error occurred during registration",
+        };
       }
     }),
   login: registrationProcedure

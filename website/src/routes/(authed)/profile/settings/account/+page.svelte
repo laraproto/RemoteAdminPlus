@@ -9,6 +9,8 @@
   import { zod4Client } from "sveltekit-superforms/adapters";
   import { invalidateAll } from "$app/navigation";
   import { toast } from "svelte-sonner";
+  import { Separator } from "$lib/components/ui/separator/index.js";
+  import { IsMobile } from "$lib/hooks/is-mobile.svelte";
 
   let { data }: { data: PageData } = $props();
 
@@ -28,20 +30,10 @@
     },
   });
 
-  const {
-    form: formDataUsername,
-    enhance: enhanceUsername,
-    errors: errorsUsername,
-    constraints: constraintsUsername,
-    message: messageUsername,
-  } = formUsername;
-  const {
-    form: formDataPassword,
-    enhance: enhancePassword,
-    errors: errorsPassword,
-    constraints: constraintsPassword,
-    message: messagePassword,
-  } = formPassword;
+  const mobileQuery = new IsMobile();
+
+  const { form: formDataUsername, enhance: enhanceUsername } = formUsername;
+  const { form: formDataPassword, enhance: enhancePassword } = formPassword;
 </script>
 
 <Head title="Account Settings" />
@@ -60,7 +52,7 @@
             method="POST"
             action="?/username"
             use:enhanceUsername
-            class="w-120"
+            class="xl:w-120 w-70 lg:w-80"
           >
             <Form.Field form={formUsername} name="username">
               <Form.Control>
@@ -86,13 +78,17 @@
           </form>
         </div>
 
+        {#if mobileQuery.current}
+          <Separator class="my-4" />
+        {/if}
+
         <!-- Form 2 -->
         <div class="flex-1 p-6">
           <form
             method="POST"
             action="?/password"
             use:enhancePassword
-            class="w-120"
+            class="xl:w-120 w-70 lg:w-80"
           >
             <Form.Field form={formPassword} name="currentPassword">
               <Form.Control>

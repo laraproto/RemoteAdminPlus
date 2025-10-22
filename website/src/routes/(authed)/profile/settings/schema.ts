@@ -30,8 +30,3 @@ export const passwordSchema = z
   );
 
 export type PasswordSchema = typeof passwordSchema;
-
-export const emailSchema = z.object({
-  email: z.email(),
-  password: z.string().min(8).max(128),
-});

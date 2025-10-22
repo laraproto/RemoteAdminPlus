@@ -1,51 +1,27 @@
 <script lang="ts">
-  import * as Alert from "$lib/components/ui/alert/index";
   import * as Card from "$lib/components/ui/card";
-  import { Button } from "$lib/components/ui/button";
-  import { Label } from "$lib/components/ui/label";
-  import { Input } from "$lib/components/ui/input";
-
-  import { CircleAlert, CircleCheck } from "@lucide/svelte";
-
-  import { type TRPCClientError } from "@trpc/client";
-  import type { AppRouter } from "@remoteadminplus/backend/trpc";
-
-  import trpcClient from "$lib/trpc";
-  import { goto, invalidateAll } from "$app/navigation";
-  import { resolve } from "$app/paths";
-  import type { Pathname } from "$app/types";
   import Head from "$lib/components/front/Head.svelte";
+  import * as Form from "$lib/components/ui/form/index.js";
+  import { Button } from "$lib/components/ui/button/index.js";
+  import { Input } from "$lib/components/ui/input/index.js";
   import type { PageProps } from "./$types";
+  import { loginSchema } from "../schema";
+  import { superForm } from "sveltekit-superforms";
+  import { zod4Client } from "sveltekit-superforms/adapters";
+  import { invalidateAll } from "$app/navigation";
+  import { toast } from "svelte-sonner";
 
   let { data }: PageProps = $props();
 
-  let username = $state("");
-  let password = $state<string>("");
+  const form = superForm(data.form, {
+    validators: zod4Client(loginSchema),
+    onUpdated: async ({ form }) => {
+      invalidateAll();
+      toast(form.message);
+    },
+  });
 
-  let message = $state<string>();
-  let success = $state<boolean>();
-
-  const handleSubmit = async () => {
-    try {
-      const response = await trpcClient.registration.login.mutate({
-        username,
-        password,
-      });
-
-      message = response.message;
-      success = response.success;
-
-      if (response?.success && "redirect" in response) {
-        await invalidateAll();
-        setTimeout(() => {
-          goto(resolve(response.redirect as Pathname));
-        }, 2000);
-      }
-    } catch (err) {
-      if ((err as TRPCClientError<AppRouter>).cause?.message)
-        message = (err as TRPCClientError<AppRouter>).cause?.message;
-    }
-  };
+  const { form: formData, enhance } = form;
 </script>
 
 <Head title="Login" />
@@ -61,44 +37,32 @@
         </Card.Action>
       {/if}
     </Card.Header>
-    <Card.Content>
-      {#if message}
-        <Alert.Alert class="mb-6">
-          {#if !success}
-            <CircleAlert />
-          {:else}
-            <CircleCheck />
-          {/if}
-          <Alert.Title
-            >{!success ? "Validation Errors" : "Messages"}</Alert.Title
-          >
-          <Alert.Description>
-            {message}
-          </Alert.Description>
-        </Alert.Alert>
-      {/if}
-
-      <form>
-        <div class="flex flex-col gap-6">
-          <div class="grid gap-2">
-            <Label for="username">Username*</Label>
-            <Input id="username" bind:value={username} required />
-          </div>
-          <div class="grid gap-2">
-            <Label for="password">Password*</Label>
-            <Input
-              id="password"
-              type="password"
-              bind:value={password}
-              required
-            />
-          </div>
-        </div>
-      </form>
-    </Card.Content>
-    <Card.Footer class="flex-col gap-2">
-      <Button type="submit" class="w-full" onclick={handleSubmit}>Login</Button>
-      <p>* Required fields</p>
-    </Card.Footer>
+    <form method="POST" use:enhance>
+      <Card.Content>
+        <Form.Field {form} name="username">
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Username</Form.Label>
+              <Input {...props} bind:value={$formData.username} />
+            {/snippet}
+          </Form.Control>
+          <Form.Description>Your username</Form.Description>
+          <Form.FieldErrors />
+        </Form.Field>
+        <Form.Field {form} name="password">
+          <Form.Control>
+            {#snippet children({ props })}
+              <Form.Label>Password</Form.Label>
+              <Input {...props} bind:value={$formData.password} />
+            {/snippet}
+          </Form.Control>
+          <Form.Description>Minimum 8 characters, Maximum 128</Form.Description>
+          <Form.FieldErrors />
+        </Form.Field>
+      </Card.Content>
+      <Card.Footer class="flex-col gap-2">
+        <Form.Button>Login</Form.Button>
+      </Card.Footer>
+    </form>
   </Card.Root>
 </div>

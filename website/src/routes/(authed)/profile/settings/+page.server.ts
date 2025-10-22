@@ -30,10 +30,13 @@ export const actions = {
       if (!updateResult.success) {
         return fail(400, {
           form,
-          message: "Failed to update profile settings.",
+          message: updateResult.message || "Failed to update profile settings.",
         });
       }
-      return message(form, "Settings updated successfully!");
+      return message(
+        form,
+        updateResult.message || "Username updated successfully!",
+      );
     } catch (err) {
       console.error("Error updating profile settings:", err);
       return fail(500, {

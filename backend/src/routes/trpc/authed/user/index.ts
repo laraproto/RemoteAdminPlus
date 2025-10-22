@@ -24,6 +24,13 @@ const userRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
+        if (input.displayName === ctx.user.displayName) {
+          return {
+            success: false,
+            message: "Display name can't be the same as the current one",
+          };
+        }
+
         const user = await db
           .update(schema.user)
           .set({
@@ -33,11 +40,13 @@ const userRouter = router({
           .returning();
         return {
           success: user.length > 0,
+          message: "Username updated",
         };
       } catch (err) {
         console.error("Error updating user profile:", err);
         return {
           success: false,
+          message: "An error occurred while updating your profile.",
         };
       }
     }),
@@ -95,60 +104,6 @@ const userRouter = router({
         };
       } catch (err) {
         console.error("Error updating username:", err);
-        return { success: false };
-      }
-    }),
-  updateEmail: publicProcedure
-    .input(
-      z.object({
-        email: z.email(),
-        password: z.string().min(8).max(128),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const existingUser = await db.query.user.findFirst({
-        where: (users, { eq }) => eq(users.email, input.email),
-      });
-
-      if (existingUser) {
-        return { success: false, message: "This email is already in use." };
-      }
-
-      const userRecord = await db.query.user.findFirst({
-        where: (users, { eq }) => eq(users.uuid, ctx.user.uuid),
-        columns: {
-          uuid: true,
-          password: true,
-        },
-      });
-
-      if (!userRecord) {
-        return { success: false, message: "We couldn't find your user." };
-      }
-
-      if (!(await password.verify(input.password, userRecord.password))) {
-        return {
-          success: false,
-          message: "The provided password is incorrect.",
-        };
-      }
-
-      try {
-        const updatedUsers = await db
-          .update(schema.user)
-          .set({ email: input.email })
-          .where(eq(schema.user.uuid, ctx.user.uuid))
-          .returning();
-
-        return {
-          success: updatedUsers.length > 0,
-          message:
-            updatedUsers.length > 0
-              ? "Email updated successfully."
-              : "Failed to update email.",
-        };
-      } catch (err) {
-        console.error("Error updating email:", err);
         return { success: false };
       }
     }),
