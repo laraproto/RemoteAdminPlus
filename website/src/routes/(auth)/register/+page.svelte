@@ -51,7 +51,11 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>Password</Form.Label>
-              <Input {...props} bind:value={$formData.password} />
+              <Input
+                {...props}
+                type="password"
+                bind:value={$formData.password}
+              />
             {/snippet}
           </Form.Control>
           <Form.Description>Minimum 8 characters, Maximum 128</Form.Description>

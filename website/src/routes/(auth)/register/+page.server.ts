@@ -1,9 +1,8 @@
 import { redirect } from "@sveltejs/kit";
-import { message, superValidate } from "sveltekit-superforms";
+import { message, superValidate, fail } from "sveltekit-superforms";
 import { zod4 } from "sveltekit-superforms/adapters";
 import { registerSchema } from "../schema";
 import type { PageServerLoad, Actions } from "./$types";
-import { fail } from "@sveltejs/kit";
 import trpcServer from "$lib/trpc.server";
 
 export const load: PageServerLoad = async ({ locals }) => {

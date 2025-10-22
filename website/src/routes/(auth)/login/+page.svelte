@@ -17,7 +17,11 @@
     validators: zod4Client(loginSchema),
     onUpdated: async ({ form }) => {
       invalidateAll();
-      toast(form.message);
+      if (form.message) {
+        toast(form.message);
+        return;
+      }
+      toast.error(JSON.stringify(form.errors));
     },
   });
 
@@ -53,7 +57,11 @@
           <Form.Control>
             {#snippet children({ props })}
               <Form.Label>Password</Form.Label>
-              <Input {...props} bind:value={$formData.password} />
+              <Input
+                {...props}
+                type="password"
+                bind:value={$formData.password}
+              />
             {/snippet}
           </Form.Control>
           <Form.Description>Minimum 8 characters, Maximum 128</Form.Description>
