@@ -5,6 +5,7 @@ declare module "bun" {
     DATABASE_HINT: string;
     REDIS_PREFIX: string;
     REDIS_URL: string;
+    REDIS_PASS: string;
     DATA_DIR: string;
   }
 }

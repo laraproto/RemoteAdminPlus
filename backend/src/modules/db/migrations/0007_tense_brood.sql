@@ -1,0 +1,1 @@
+ALTER TABLE "playerWarns" ADD COLUMN "active" boolean DEFAULT true NOT NULL;

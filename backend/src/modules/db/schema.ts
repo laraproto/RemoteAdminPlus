@@ -231,10 +231,11 @@ export const playerBans = pgTable("playerBans", {
   reason: varchar("reason", { length: 1000 }),
   type: bansEnum().notNull(),
   expiresAt: timestamp("expires_at").notNull().defaultNow(),
+  active: boolean("active").notNull().default(true),
+  ...timeData,
 });
 
 export const warnsEnum = pgEnum("warnType", [
-  "strike",
   "minor",
   "major",
   "tempminor",
@@ -250,7 +251,9 @@ export const playerWarns = pgTable("playerWarns", {
   reason: varchar("reason", { length: 1000 }),
   hidden: boolean("hidden").notNull().default(false),
   type: warnsEnum().notNull(),
-  expiresAt: timestamp("expires_at"),
+  expiresAt: timestamp("expires_at").notNull().defaultNow(),
+  active: boolean("active").notNull().default(true),
+  ...timeData,
 });
 
 export const playerStatisticsRelations = relations(
@@ -313,8 +316,6 @@ export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
   }),
 }));
 
-export type User = typeof user.$inferSelect;
-
 export const userSelect = createSelectSchema(user);
 
 export const panelGroupSelect = createSelectSchema(panelGroups);
@@ -335,3 +336,9 @@ export const userSelectMinimal = z.object({
 });
 
 export type UserSelectMinimal = z.infer<typeof userSelectMinimal>;
+
+export const bansSelect = createSelectSchema(playerBans);
+export const warnsSelect = createSelectSchema(playerWarns);
+
+export type Bans = z.infer<typeof bansSelect>;
+export type Warns = z.infer<typeof warnsSelect>;
