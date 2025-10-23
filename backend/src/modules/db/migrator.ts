@@ -20,8 +20,6 @@ export async function readMigrationFilesEmbedded(): Promise<MigrationMeta[]> {
     easierToReadFiles[file.name] = file;
   });
 
-  console.log(easierToReadFiles);
-
   const migrationQueries: MigrationMeta[] = [];
 
   const journal: {
@@ -60,7 +58,6 @@ export async function migrate<TSchema extends Record<string, unknown>>(
   db: PostgresJsDatabase<TSchema>,
 ) {
   const folder = path.join(import.meta.dir, "migrations");
-  console.log(folder);
   const config: MigrationConfig = {
     migrationsFolder: folder,
   };

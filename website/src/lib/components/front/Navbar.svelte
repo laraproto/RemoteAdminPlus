@@ -2,12 +2,11 @@
   import { resolve } from "$app/paths";
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
   import { NavigationMenu as NavigationMenuPrimitive } from "bits-ui";
-  import { Button } from "$lib/components/ui/button/index.js";
   import { Separator } from "$lib/components/ui/separator/index.js";
-  import { Badge } from "$lib/components/ui/badge/index.js";
   import type { User, Configuration } from "$lib/types/common";
   import trpcClient from "$lib/trpc";
   import { goto, invalidateAll } from "$app/navigation";
+  import * as AlertDialog from "$lib/components/ui/alert-dialog";
   import type { Pathname } from "$app/types";
   import { adaptiveNavContent } from "$lib/context/adaptive-nav";
   import type { AdaptiveNavContent } from "$lib/types/adaptive-nav";
@@ -17,11 +16,17 @@
 
   const logout = async () => {
     const value = await trpcClient.authed.user.logout.mutate();
-    console.log(value);
+    setLogoutDialog(false);
     if (value?.success) {
       invalidateAll();
       goto(resolve(value?.redirect as Pathname));
     }
+  };
+
+  let logoutDialogOpen = $state(false);
+
+  const setLogoutDialog = async (open: boolean) => {
+    logoutDialogOpen = open;
   };
 
   let {
@@ -37,6 +42,26 @@
 
   const isMobile = new IsMobile();
 </script>
+
+{#snippet logoutDialog()}
+  <AlertDialog.Root bind:open={logoutDialogOpen}>
+    <AlertDialog.Trigger hidden />
+    <AlertDialog.Content>
+      <AlertDialog.Header>
+        <AlertDialog.Title>Log Out</AlertDialog.Title>
+        <AlertDialog.Description>
+          Are you sure you want to log out?
+        </AlertDialog.Description>
+      </AlertDialog.Header>
+      <AlertDialog.Footer>
+        <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+        <AlertDialog.Action onclick={logout}>Log Out</AlertDialog.Action>
+      </AlertDialog.Footer>
+    </AlertDialog.Content>
+  </AlertDialog.Root>
+{/snippet}
+
+{@render logoutDialog()}
 
 <header class="bg-background relative z-50 w-full">
   <div class="mx-auto w-full px-4">
@@ -117,10 +142,12 @@
                         >
                           Settings
                         </NavigationMenu.Link>
+                        <Separator class="my-2" />
                         <NavigationMenu.Link
                           href="javascript:void"
                           class="flex-row items-center gap-2"
-                          onclick={logout}>Logout</NavigationMenu.Link
+                          onclick={() => setLogoutDialog(true)}
+                          >Logout</NavigationMenu.Link
                         >
                       </li>
                     </ul>
