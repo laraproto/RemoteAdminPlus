@@ -42,7 +42,7 @@
   <div class="mx-auto w-full px-4">
     <nav class="flex w-full flex-row items-center">
       <!-- Left: Logo/App Name -->
-      <div class="flex flex-1 items-center">
+      <div class="ml-4 flex flex-1 items-center">
         <a href={resolve(user ? "/panel/" : "/")} class="py-3 text-xl">
           {#if isMobile.current}
             <img alt="small" src={templogo} class="h-12 w-12 animate-spin" />
@@ -87,7 +87,7 @@
         {/if}
       </div>
       <!-- Right: User Menu -->
-      <div class="flex flex-1 justify-end">
+      <div class="mr-4 flex flex-1 justify-end">
         <NavigationMenu.Root>
           <NavigationMenuPrimitive.Sub>
             <NavigationMenu.List>
@@ -99,6 +99,12 @@
                   <NavigationMenu.Content>
                     <ul class="grid w-[100px] gap-4 p-2">
                       <li>
+                        <NavigationMenu.Link
+                          href="/panel"
+                          class="flex-row items-center gap-2"
+                        >
+                          Panel
+                        </NavigationMenu.Link>
                         <NavigationMenu.Link
                           href="/profile"
                           class="flex-row items-center gap-2"
