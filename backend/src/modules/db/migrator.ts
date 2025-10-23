@@ -62,7 +62,7 @@ export async function migrate<TSchema extends Record<string, unknown>>(
     migrationsFolder: folder,
   };
   let migrations: MigrationMeta[] = [];
-  if (!embeddedFiles) {
+  if (!(embeddedFiles.length === 0)) {
     migrations = await readMigrationFilesEmbedded();
   } else {
     migrations = readMigrationFiles(config);
