@@ -92,8 +92,6 @@ const registrationRouter = router({
         user.password,
       );
 
-      console.log(passwordMatch);
-
       if (!passwordMatch) {
         return {
           success: false,
