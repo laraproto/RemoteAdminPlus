@@ -130,6 +130,7 @@
                         >
                           Panel
                         </NavigationMenu.Link>
+                        <Separator class="my-2" />
                         <NavigationMenu.Link
                           href="/profile"
                           class="flex-row items-center gap-2"
