@@ -8,6 +8,7 @@ import {
   boolean,
   pgEnum,
   uuid,
+  index,
   text,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
@@ -19,20 +20,33 @@ const timeData = {
   updatedAt: timestamp({ withTimezone: true }),
 };
 
-export const user = pgTable("users", {
-  uuid: uuid("id").primaryKey().defaultRandom(),
-  username: varchar("username", { length: 18 }).notNull().unique(),
-  displayName: varchar("display_name", { length: 25 }),
-  password: varchar("password", { length: 512 }).notNull(),
-  totpSecret: varchar("totp_secret", { length: 64 }),
-  flags: bigint({ mode: "bigint" })
-    .notNull()
-    .default(sql`1::bigint`),
-  groupId: uuid("group_id").references(() => panelGroups.uuid, {
-    onDelete: "set null",
-  }),
-  ...timeData,
-});
+export const user = pgTable(
+  "users",
+  {
+    uuid: uuid("id").primaryKey().defaultRandom(),
+    username: varchar("username", { length: 18 }).notNull().unique(),
+    displayName: varchar("display_name", { length: 25 }),
+    password: varchar("password", { length: 512 }).notNull(),
+    totpSecret: varchar("totp_secret", { length: 64 }),
+    flags: bigint({ mode: "bigint" })
+      .notNull()
+      .default(sql`1::bigint`),
+    groupId: uuid("group_id").references(() => panelGroups.uuid, {
+      onDelete: "set null",
+    }),
+    ...timeData,
+  },
+  (table) => [
+    index("username_search_index").using(
+      "gin",
+      sql`to_tsvector('english', ${table.username})`,
+    ),
+    index("display_name_search_index").using(
+      "gin",
+      sql`to_tsvector('english', ${table.displayName})`,
+    ),
+  ],
+);
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -188,15 +202,26 @@ export const gameGroupsRelations = relations(gameGroups, ({ many }) => ({
   }),
 }));
 
-export const player = pgTable("players", {
-  uuid: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id").references(() => user.uuid, { onDelete: "set null" }),
-  name: varchar("name", { length: 80 }).notNull(),
-  // this is a platform id, sl at the time of writing this comment supports both steam and discord auth, it's better to genericize the name
-  platformId: varchar("platform_id", { length: 256 }).unique().notNull(),
-  doNotTrack: boolean("do_not_track").notNull().default(true), // if a player's do not track has not been picked up, assume yes for privacy reasons
-  ...timeData, // service information, if data ever needs to be pruned at least this will tell of us any data that we can remove easily
-});
+export const player = pgTable(
+  "players",
+  {
+    uuid: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => user.uuid, {
+      onDelete: "set null",
+    }),
+    name: varchar("name", { length: 80 }).notNull(),
+    // this is a platform id, sl at the time of writing this comment supports both steam and discord auth, it's better to genericize the name
+    platformId: varchar("platform_id", { length: 256 }).unique().notNull(),
+    doNotTrack: boolean("do_not_track").notNull().default(true), // if a player's do not track has not been picked up, assume yes for privacy reasons
+    ...timeData, // service information, if data ever needs to be pruned at least this will tell of us any data that we can remove easily
+  },
+  (table) => [
+    index("name_search_index").using(
+      "gin",
+      sql`to_tsvector('english', ${table.name})`,
+    ),
+  ],
+);
 
 export const playerRelations = relations(player, ({ one }) => ({
   user: one(user, {
@@ -224,7 +249,9 @@ export const bansEnum = pgEnum("banType", ["temporary", "permanent"]);
 
 export const playerBans = pgTable("playerBans", {
   uuid: uuid("id").primaryKey().defaultRandom(),
-  authorId: uuid("author_id").notNull(),
+  authorId: uuid("author_id").references(() => user.uuid, {
+    onDelete: "set null",
+  }),
   victimId: uuid("victim_id")
     .references(() => player.uuid, { onDelete: "cascade" })
     .notNull(),
@@ -244,7 +271,9 @@ export const warnsEnum = pgEnum("warnType", [
 
 export const playerWarns = pgTable("playerWarns", {
   uuid: uuid("id").primaryKey().defaultRandom(),
-  authorId: uuid("author_id").notNull(),
+  authorId: uuid("author_id").references(() => user.uuid, {
+    onDelete: "set null",
+  }),
   victimId: uuid("victim_id")
     .references(() => player.uuid, { onDelete: "cascade" })
     .notNull(),
