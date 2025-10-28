@@ -4,6 +4,7 @@ import { platformRegex } from "@remoteadminplus/shared/common/user";
 import { eq, sql } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
+import { scheduleBan } from "#modules/scheduler/queues/bans";
 
 const bansRouter = router({
   get: authedProcedure
@@ -83,6 +84,56 @@ const bansRouter = router({
               ),
           });
       }
+    }),
+  edit: authedProcedure
+    .input(
+      z.object({
+        uuid: z.uuid(),
+        expiresAt: z.date(),
+        permanent: z.boolean().optional().default(false),
+        reason: z.string().min(1).max(500),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const existingBan = await db.query.playerBans.findFirst({
+        where: eq(schema.playerBans.uuid, input.uuid),
+      });
+
+      if (!existingBan) {
+        return {
+          success: false,
+          message: "Ban not found.",
+        };
+      }
+
+      const delay = input.expiresAt.getTime() - Date.now();
+
+      const updatedBan = await db
+        .update(schema.playerBans)
+        .set({
+          expiresAt: input.expiresAt,
+          reason: input.reason,
+          type: input.permanent ? "permanent" : "temporary",
+          active: input.permanent ? true : delay > 0,
+        })
+        .where(eq(schema.playerBans.uuid, input.uuid))
+        .returning();
+
+      if (!updatedBan[0]) {
+        return {
+          success: false,
+          message: "Ban failed to update.",
+        };
+      }
+
+      if (delay > 0) {
+        await scheduleBan(updatedBan[0]);
+      }
+
+      return {
+        success: true,
+        message: "Ban updated successfully.",
+      };
     }),
 });
 
