@@ -8,16 +8,21 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import { firstRunConfig } from "../firstrun";
 import superjson from "superjson";
 
+interface TRPCContext {
+  session: Session;
+  user: UserSelectMinimal;
+  getSessionToken: () => string | undefined;
+}
+
 interface Meta {
-  permissionsRequired: JointFlagKeys | JointFlagKeys[] | (() => boolean);
+  permissionsRequired:
+    | JointFlagKeys
+    | JointFlagKeys[]
+    | ((ctx: TRPCContext) => Promise<boolean>);
 }
 
 const t = initTRPC
-  .context<{
-    session: Session;
-    user: UserSelectMinimal;
-    getSessionToken: () => string | undefined;
-  }>()
+  .context<TRPCContext>()
   .meta<Meta>()
   .create({
     defaultMeta: {
@@ -77,7 +82,7 @@ export const authedProcedure = publicProcedure.use(async (opts) => {
       throw new TRPCError({ code: "FORBIDDEN" });
     }
     case "function": {
-      if (meta.permissionsRequired()) break;
+      if (await meta.permissionsRequired(ctx)) break;
       throw new TRPCError({ code: "FORBIDDEN" });
     }
     case "bigint": {

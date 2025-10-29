@@ -1,7 +1,7 @@
 import { authedProcedure } from "#modules/trpc";
 import { router } from "#modules/trpc";
-import { platformRegex } from "@remoteadminplus/shared/common/user";
-import { eq, sql } from "drizzle-orm";
+import { platformRegex, JointFlags } from "@remoteadminplus/shared/common/user";
+import { eq, and, sql } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
 import { scheduleWarn } from "#modules/scheduler/queues/warns";
@@ -16,7 +16,14 @@ const warnsRouter = router({
         pageSize: z.number().min(10).max(100).optional().default(10),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
+      const canSeeHidden =
+        (ctx.user.group !== null &&
+          !!(
+            ctx.user.group?.permissions & JointFlags["VIEW_HIDDEN_WARNINGS"]
+          )) ||
+        !!(ctx.user.flags & JointFlags["VIEW_HIDDEN_WARNINGS"]);
+
       switch (true) {
         case z.uuid().safeParse(input.query).success:
           return await db.query.playerWarns.findMany({
@@ -26,10 +33,16 @@ const warnsRouter = router({
               warnAuthor: true,
               warnVictim: true,
             },
-            where: (table, { eq, or }) =>
-              or(
-                eq(table.authorId, input.query),
-                eq(table.victimId, input.query),
+            columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
+            where: (table, { eq, and, or }) =>
+              and(
+                or(
+                  eq(table.authorId, input.query),
+                  eq(table.victimId, input.query),
+                ),
+                !canSeeHidden
+                  ? eq(schema.playerWarns.hidden, false)
+                  : undefined,
               ),
           });
         case z.string().regex(platformRegex).safeParse(input.query).success:
@@ -40,50 +53,66 @@ const warnsRouter = router({
               warnAuthor: true,
               warnVictim: true,
             },
-            where: (warns, { inArray }) =>
-              inArray(
-                warns.victimId,
-                db
-                  .select({ id: schema.player.uuid })
-                  .from(schema.player)
-                  .where(eq(schema.player.platformId, input.query)),
+            columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
+            where: (warns, { and, inArray }) =>
+              and(
+                inArray(
+                  warns.victimId,
+                  db
+                    .select({ id: schema.player.uuid })
+                    .from(schema.player)
+                    .where(eq(schema.player.platformId, input.query)),
+                ),
+                !canSeeHidden
+                  ? eq(schema.playerWarns.hidden, false)
+                  : undefined,
               ),
           });
         default:
           return await db.query.playerWarns.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
-            where: (warns, { inArray, or }) =>
-              or(
-                inArray(
-                  warns.victimId,
-                  db
-                    .select({ id: schema.player.uuid })
-                    .from(schema.player)
-                    .where(
-                      sql`to_tsvector('english', ${schema.player.name}) @@ plainto_tsquery('english', ${input.query})`,
-                    ),
-                ),
+            with: {
+              warnAuthor: true,
+              warnVictim: true,
+            },
+            columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
+            where: (warns, { inArray, and, or }) =>
+              and(
                 or(
                   inArray(
-                    warns.authorId,
+                    warns.victimId,
                     db
-                      .select({ id: schema.user.uuid })
-                      .from(schema.user)
+                      .select({ id: schema.player.uuid })
+                      .from(schema.player)
                       .where(
-                        sql`to_tsvector('english', ${schema.user.username}) @@ plainto_tsquery('english', ${input.query})`,
+                        sql`to_tsvector('english', ${schema.player.name}) @@ plainto_tsquery('english', ${input.query})`,
                       ),
                   ),
-                  inArray(
-                    warns.authorId,
-                    db
-                      .select({ id: schema.user.uuid })
-                      .from(schema.user)
-                      .where(
-                        sql`to_tsvector('english', ${schema.user.displayName}) @@ plainto_tsquery('english', ${input.query})`,
-                      ),
+                  or(
+                    inArray(
+                      warns.authorId,
+                      db
+                        .select({ id: schema.user.uuid })
+                        .from(schema.user)
+                        .where(
+                          sql`to_tsvector('english', ${schema.user.username}) @@ plainto_tsquery('english', ${input.query})`,
+                        ),
+                    ),
+                    inArray(
+                      warns.authorId,
+                      db
+                        .select({ id: schema.user.uuid })
+                        .from(schema.user)
+                        .where(
+                          sql`to_tsvector('english', ${schema.user.displayName}) @@ plainto_tsquery('english', ${input.query})`,
+                        ),
+                    ),
                   ),
                 ),
+                !canSeeHidden
+                  ? eq(schema.playerWarns.hidden, false)
+                  : undefined,
               ),
           });
       }
@@ -97,9 +126,19 @@ const warnsRouter = router({
         reason: z.string().min(1).max(500),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const canSeeHidden =
+        (ctx.user.group !== null &&
+          !!(
+            ctx.user.group?.permissions & JointFlags["VIEW_HIDDEN_WARNINGS"]
+          )) ||
+        !!(ctx.user.flags & JointFlags["VIEW_HIDDEN_WARNINGS"]);
+
       const existingWarn = await db.query.playerWarns.findFirst({
-        where: eq(schema.playerWarns.uuid, input.uuid),
+        where: and(
+          eq(schema.playerWarns.uuid, input.uuid),
+          !canSeeHidden ? eq(schema.playerWarns.hidden, false) : undefined,
+        ),
       });
 
       if (!existingWarn) {
@@ -146,9 +185,19 @@ const warnsRouter = router({
         uuid: z.uuid(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const canSeeHidden =
+        (ctx.user.group !== null &&
+          !!(
+            ctx.user.group?.permissions & JointFlags["VIEW_HIDDEN_WARNINGS"]
+          )) ||
+        !!(ctx.user.flags & JointFlags["VIEW_HIDDEN_WARNINGS"]);
+
       const existingWarn = await db.query.playerWarns.findFirst({
-        where: eq(schema.playerWarns.uuid, input.uuid),
+        where: and(
+          eq(schema.playerWarns.uuid, input.uuid),
+          !canSeeHidden ? eq(schema.playerWarns.hidden, false) : undefined,
+        ),
       });
 
       if (!existingWarn) {
@@ -181,9 +230,19 @@ const warnsRouter = router({
         uuid: z.uuid(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const canSeeHidden =
+        (ctx.user.group !== null &&
+          !!(
+            ctx.user.group?.permissions & JointFlags["VIEW_HIDDEN_WARNINGS"]
+          )) ||
+        !!(ctx.user.flags & JointFlags["VIEW_HIDDEN_WARNINGS"]);
+
       const existingWarn = await db.query.playerWarns.findFirst({
-        where: eq(schema.playerWarns.uuid, input.uuid),
+        where: and(
+          eq(schema.playerWarns.uuid, input.uuid),
+          !canSeeHidden ? eq(schema.playerWarns.hidden, false) : undefined,
+        ),
       });
 
       if (!existingWarn) {
