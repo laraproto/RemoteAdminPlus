@@ -7,27 +7,40 @@ import registrationRouter from "#routes/trpc/registration";
 import { firstRunConfig } from "#modules/firstrun";
 
 export const appRouter = router({
-  hello: publicProcedure.input(z.string().nullish()).query(({ input, ctx }) => {
-    return `Hello ${input ?? "world"}! Your session is ${JSON.stringify(ctx.session)}`;
-  }),
-  session: publicProcedure.mutation(async ({ ctx }) => {
-    const authHeader = ctx.getSessionToken();
-    if (authHeader && ctx.session) {
-      return {
-        valid: true,
-        session: ctx.session,
-        authToken: authHeader,
-      };
-    }
+  hello: publicProcedure
+    .meta({
+      route: {
+        tags: ["internal"],
+      },
+    })
+    .input(z.string().nullish())
+    .query(({ input, ctx }) => {
+      return `Hello ${input ?? "world"}! Your session is ${JSON.stringify(ctx.session)}`;
+    }),
+  session: publicProcedure
+    .meta({
+      route: {
+        tags: ["internal"],
+      },
+    })
+    .mutation(async ({ ctx }) => {
+      const authHeader = ctx.getSessionToken();
+      if (authHeader && ctx.session) {
+        return {
+          valid: true,
+          session: ctx.session,
+          authToken: authHeader,
+        };
+      }
 
-    const sessionToken = auth.generateSessionToken();
-    const session = await auth.createSession(sessionToken);
-    return {
-      valid: false,
-      session,
-      authToken: sessionToken,
-    };
-  }),
+      const sessionToken = auth.generateSessionToken();
+      const session = await auth.createSession(sessionToken);
+      return {
+        valid: false,
+        session,
+        authToken: sessionToken,
+      };
+    }),
   configuration: publicProcedure.query(() => {
     return {
       appName: firstRunConfig?.app_name || "RemoteAdminPlus",

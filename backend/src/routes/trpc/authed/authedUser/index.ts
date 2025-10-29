@@ -1,4 +1,4 @@
-import { publicProcedure, router } from "#modules/trpc";
+import { authedProcedure, router } from "#modules/trpc";
 import { invalidateSession } from "#modules/auth/index";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -7,8 +7,8 @@ import { usernameRegex } from "@remoteadminplus/shared/common/user";
 import { password } from "bun";
 
 const authedUserRouter = router({
-  me: publicProcedure.query(({ ctx }) => ctx.user),
-  logout: publicProcedure.mutation(async ({ ctx }) => {
+  me: authedProcedure.query(({ ctx }) => ctx.user),
+  logout: authedProcedure.mutation(async ({ ctx }) => {
     const result = await invalidateSession(ctx.session.id);
     if (result) {
       return { success: result, redirect: "/" };
@@ -16,7 +16,7 @@ const authedUserRouter = router({
       return { success: result };
     }
   }),
-  updateProfile: publicProcedure
+  updateProfile: authedProcedure
     .input(
       z.object({
         displayName: z.string().min(3).max(25).optional(),
@@ -50,7 +50,7 @@ const authedUserRouter = router({
         };
       }
     }),
-  updateUsername: publicProcedure
+  updateUsername: authedProcedure
     .input(
       z.object({
         username: z.string().min(3).max(18).regex(usernameRegex),
@@ -107,7 +107,7 @@ const authedUserRouter = router({
         return { success: false };
       }
     }),
-  updatePassword: publicProcedure
+  updatePassword: authedProcedure
     .input(
       z
         .object({

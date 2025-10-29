@@ -1,11 +1,11 @@
-import { publicProcedure, router } from "#modules/trpc/index";
+import { authedProcedure, router } from "#modules/trpc/index";
 import { db, schema } from "#modules/db/index";
 import { eq, sql } from "drizzle-orm";
 import { platformRegex } from "@remoteadminplus/shared/common/user";
 import { z } from "zod";
 
 const searchRouter = router({
-  get: publicProcedure
+  get: authedProcedure
     .meta({
       permissionsRequired: ["SEARCH_USERS"],
     })

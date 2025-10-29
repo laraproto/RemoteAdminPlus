@@ -48,6 +48,12 @@ const sessionMiddleware = createMiddleware<{
       return;
     }
 
+    case "Server": {
+      console.log("Attempt to us unimplemented server authentication route");
+      await next();
+      return;
+    }
+
     case undefined: {
       if (authToken === undefined) break;
       // No auth method, but auth token is present, this is alternative user auth

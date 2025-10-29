@@ -24,6 +24,11 @@
   },
   "dependencies": {
     "@hono/trpc-server": "^0.4.0",
+    "@orpc/client": "^1.10.2",
+    "@orpc/openapi": "^1.10.2",
+    "@orpc/server": "^1.10.2",
+    "@orpc/trpc": "^1.10.2",
+    "@orpc/zod": "^1.10.2",
     "@oslojs/binary": "^1.0.0",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",

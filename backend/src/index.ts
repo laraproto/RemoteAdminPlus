@@ -2,6 +2,7 @@ import { HOSTNAME, NODE_ENV, PORT } from "#modules/config";
 import { Hono } from "hono";
 import "#modules/scheduler";
 import "#modules/firstrun";
+import "#modules/openapi";
 import routes from "#routes/index";
 import { appRouter } from "./routes/trpc";
 
