@@ -15,7 +15,7 @@
   import templogo from "$lib/images/templogo.png";
 
   const logout = async () => {
-    const value = await trpcClient.authed.user.logout.mutate();
+    const value = await trpcClient.authed.authedUser.logout.mutate();
     setLogoutDialog(false);
     if (value?.success) {
       invalidateAll();

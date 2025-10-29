@@ -27,10 +27,11 @@ export const actions = {
     }
 
     try {
-      const updateResult = await trpcServer.authed.user.updateUsername.mutate({
-        username: form.data.username,
-        password: form.data.password,
-      });
+      const updateResult =
+        await trpcServer.authed.authedUser.updateUsername.mutate({
+          username: form.data.username,
+          password: form.data.password,
+        });
       if (!updateResult.success) {
         return fail(400, {
           form,
@@ -54,11 +55,12 @@ export const actions = {
     }
 
     try {
-      const updateResult = await trpcServer.authed.user.updatePassword.mutate({
-        currentPassword: form.data.currentPassword,
-        newPassword: form.data.newPassword,
-        newPasswordConfirm: form.data.confirmNewPassword,
-      });
+      const updateResult =
+        await trpcServer.authed.authedUser.updatePassword.mutate({
+          currentPassword: form.data.currentPassword,
+          newPassword: form.data.newPassword,
+          newPasswordConfirm: form.data.confirmNewPassword,
+        });
       if (!updateResult.success) {
         return fail(400, {
           form,

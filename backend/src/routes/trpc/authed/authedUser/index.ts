@@ -6,7 +6,7 @@ import { db, schema } from "#modules/db";
 import { usernameRegex } from "@remoteadminplus/shared/common/user";
 import { password } from "bun";
 
-const userRouter = router({
+const authedUserRouter = router({
   me: publicProcedure.query(({ ctx }) => ctx.user),
   logout: publicProcedure.mutation(async ({ ctx }) => {
     const result = await invalidateSession(ctx.session.id);
@@ -158,4 +158,4 @@ const userRouter = router({
     }),
 });
 
-export default userRouter;
+export default authedUserRouter;

@@ -2,11 +2,70 @@ import { authedProcedure, router } from "#modules/trpc";
 import { db, schema } from "#modules/db";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
-import { JointFlags } from "@remoteadminplus/shared/common/user";
+import { JointFlags, platformRegex } from "@remoteadminplus/shared/common/user";
 import { scheduleWarn } from "#modules/scheduler/queues/warns.js";
 import { scheduleBan } from "#modules/scheduler/queues/bans.js";
 
 const playerRouter = router({
+  createUser: authedProcedure
+    .meta({
+      permissionsRequired: "VIEW_USERS",
+    })
+    .input(
+      z.object({
+        platformId: z.string().min(16).max(64).regex(platformRegex),
+        username: z.string().min(3).max(64),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const existingUser = await db.query.player.findFirst({
+        where: eq(schema.player.platformId, input.platformId),
+      });
+
+      if (existingUser) {
+        return {
+          success: false,
+          user: existingUser,
+          message: "User with this platform ID already exists.",
+        };
+      }
+
+      const newUser = await db.insert(schema.player).values({
+        platformId: input.platformId,
+        name: input.username,
+      });
+
+      return {
+        success: !!newUser,
+        user: newUser,
+        message: newUser
+          ? "User created successfully."
+          : "Failed to create user.",
+      };
+    }),
+  deleteUser: authedProcedure
+    .meta({
+      permissionsRequired: ["VIEW_USERS", "DELETE_ROLES"],
+    })
+    .input(
+      z.object({
+        uuid: z.uuid(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const deletedUser = await db
+        .delete(schema.player)
+        .where(eq(schema.player.uuid, input.uuid))
+        .returning();
+
+      return {
+        success: !!deletedUser[0],
+        message: deletedUser[0]
+          ? "User deleted successfully."
+          : "Failed to delete user.",
+        user: deletedUser[0],
+      };
+    }),
   get: authedProcedure
     .meta({
       permissionsRequired: "VIEW_USERS",

@@ -24,9 +24,10 @@ export const actions = {
     }
 
     try {
-      const updateResult = await trpcServer.authed.user.updateProfile.mutate({
-        displayName: form.data.displayName,
-      });
+      const updateResult =
+        await trpcServer.authed.authedUser.updateProfile.mutate({
+          displayName: form.data.displayName,
+        });
       if (!updateResult.success) {
         return fail(400, {
           form,
