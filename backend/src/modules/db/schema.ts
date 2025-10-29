@@ -17,7 +17,7 @@ import { createSelectSchema } from "drizzle-zod";
 
 const timeData = {
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp({ withTimezone: true }),
+  updatedAt: timestamp({ withTimezone: true }).$onUpdateFn(() => new Date()),
 };
 
 export const user = pgTable(

@@ -4,6 +4,7 @@ import { platformRegex } from "@remoteadminplus/shared/common/user";
 import { eq, sql } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
+import { scheduleWarn } from "#modules/scheduler/queues/warns";
 
 const warnsRouter = router({
   get: authedProcedure
@@ -86,6 +87,120 @@ const warnsRouter = router({
               ),
           });
       }
+    }),
+  edit: authedProcedure
+    .input(
+      z.object({
+        uuid: z.uuid(),
+        expiresAt: z.date(),
+        type: z.enum(["minor", "major", "tempminor", "tempmajor"]),
+        reason: z.string().min(1).max(500),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const existingWarn = await db.query.playerWarns.findFirst({
+        where: eq(schema.playerWarns.uuid, input.uuid),
+      });
+
+      if (!existingWarn) {
+        return {
+          success: false,
+          message: "Warn not found.",
+        };
+      }
+
+      const delay = input.expiresAt.getTime() - Date.now();
+
+      const permanent = input.type === "minor" || input.type === "major";
+
+      const updatedWarn = await db
+        .update(schema.playerWarns)
+        .set({
+          expiresAt: input.expiresAt,
+          reason: input.reason,
+          type: input.type,
+          active: permanent ? true : delay > 0,
+        })
+        .where(eq(schema.playerWarns.uuid, input.uuid))
+        .returning();
+
+      if (!updatedWarn[0]) {
+        return {
+          success: false,
+          message: "Warn failed to update.",
+        };
+      }
+
+      if (delay > 0 && !permanent) {
+        await scheduleWarn(updatedWarn[0]);
+      }
+
+      return {
+        success: true,
+        message: "Warn updated successfully.",
+      };
+    }),
+  end: authedProcedure
+    .input(
+      z.object({
+        uuid: z.uuid(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const existingWarn = await db.query.playerWarns.findFirst({
+        where: eq(schema.playerWarns.uuid, input.uuid),
+      });
+
+      if (!existingWarn) {
+        return {
+          success: false,
+          message: "Warn not found.",
+        };
+      }
+
+      if (existingWarn.type === "major" || existingWarn.type === "minor") {
+        return {
+          success: false,
+          message: "Can't end warns that aren't temporary, deletion only",
+        };
+      }
+
+      await db
+        .update(schema.playerWarns)
+        .set({ active: false, expiresAt: new Date() })
+        .where(eq(schema.playerWarns.uuid, input.uuid));
+
+      return {
+        success: true,
+        message: "Warn ended successfully.",
+      };
+    }),
+  delete: authedProcedure
+    .input(
+      z.object({
+        uuid: z.uuid(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const existingWarn = await db.query.playerWarns.findFirst({
+        where: eq(schema.playerWarns.uuid, input.uuid),
+      });
+
+      if (!existingWarn) {
+        return {
+          success: false,
+          message: "Warn not found.",
+        };
+      }
+
+      await db
+        .delete(schema.playerWarns)
+        .where(eq(schema.playerWarns.uuid, input.uuid));
+
+      return {
+        success: true,
+        message: "Warn ended successfully.",
+      };
     }),
 });
 

@@ -126,13 +126,68 @@ const bansRouter = router({
         };
       }
 
-      if (delay > 0) {
+      if (delay > 0 && !input.permanent) {
         await scheduleBan(updatedBan[0]);
       }
 
       return {
         success: true,
         message: "Ban updated successfully.",
+      };
+    }),
+  end: authedProcedure
+    .input(
+      z.object({
+        uuid: z.uuid(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const existingBan = await db.query.playerBans.findFirst({
+        where: eq(schema.playerBans.uuid, input.uuid),
+      });
+
+      if (!existingBan) {
+        return {
+          success: false,
+          message: "Ban not found.",
+        };
+      }
+
+      await db
+        .update(schema.playerBans)
+        .set({ active: false, expiresAt: new Date() })
+        .where(eq(schema.playerBans.uuid, input.uuid));
+
+      return {
+        success: true,
+        message: "Ban ended successfully.",
+      };
+    }),
+  delete: authedProcedure
+    .input(
+      z.object({
+        uuid: z.uuid(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const existingBan = await db.query.playerBans.findFirst({
+        where: eq(schema.playerBans.uuid, input.uuid),
+      });
+
+      if (!existingBan) {
+        return {
+          success: false,
+          message: "Ban not found.",
+        };
+      }
+
+      await db
+        .delete(schema.playerBans)
+        .where(eq(schema.playerBans.uuid, input.uuid));
+
+      return {
+        success: true,
+        message: "Ban ended successfully.",
       };
     }),
 });
