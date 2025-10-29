@@ -53,12 +53,8 @@
           "name": "connections_user_id_users_id_fk",
           "tableFrom": "connections",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -143,12 +139,8 @@
           "name": "gameGroupsInheritedGroups_owning_group_id_gameGroups_id_fk",
           "tableFrom": "gameGroupsInheritedGroups",
           "tableTo": "gameGroups",
-          "columnsFrom": [
-            "owning_group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owning_group_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -156,12 +148,8 @@
           "name": "gameGroupsInheritedGroups_owned_group_id_gameGroups_id_fk",
           "tableFrom": "gameGroupsInheritedGroups",
           "tableTo": "gameGroups",
-          "columnsFrom": [
-            "owned_group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owned_group_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -169,10 +157,7 @@
       "compositePrimaryKeys": {
         "gameGroupsInheritedGroups_owned_group_id_owning_group_id_pk": {
           "name": "gameGroupsInheritedGroups_owned_group_id_owning_group_id_pk",
-          "columns": [
-            "owned_group_id",
-            "owning_group_id"
-          ]
+          "columns": ["owned_group_id", "owning_group_id"]
         }
       },
       "uniqueConstraints": {},
@@ -236,12 +221,8 @@
           "name": "panelGroups_game_group_id_gameGroups_id_fk",
           "tableFrom": "panelGroups",
           "tableTo": "gameGroups",
-          "columnsFrom": [
-            "game_group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["game_group_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -275,12 +256,8 @@
           "name": "panelGroupsInheritedGroups_owning_group_panelGroups_id_fk",
           "tableFrom": "panelGroupsInheritedGroups",
           "tableTo": "panelGroups",
-          "columnsFrom": [
-            "owning_group"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owning_group"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -288,12 +265,8 @@
           "name": "panelGroupsInheritedGroups_owned_group_panelGroups_id_fk",
           "tableFrom": "panelGroupsInheritedGroups",
           "tableTo": "panelGroups",
-          "columnsFrom": [
-            "owned_group"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["owned_group"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -301,10 +274,7 @@
       "compositePrimaryKeys": {
         "panelGroupsInheritedGroups_owned_group_owning_group_pk": {
           "name": "panelGroupsInheritedGroups_owned_group_owning_group_pk",
-          "columns": [
-            "owned_group",
-            "owning_group"
-          ]
+          "columns": ["owned_group", "owning_group"]
         }
       },
       "uniqueConstraints": {},
@@ -354,12 +324,8 @@
           "name": "passwordResets_user_id_users_id_fk",
           "tableFrom": "passwordResets",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -442,12 +408,8 @@
           "name": "players_user_id_users_id_fk",
           "tableFrom": "players",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -457,9 +419,7 @@
         "players_platform_id_unique": {
           "name": "players_platform_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "platform_id"
-          ]
+          "columns": ["platform_id"]
         }
       },
       "policies": {},
@@ -536,12 +496,8 @@
           "name": "playerBans_victim_id_players_id_fk",
           "tableFrom": "playerBans",
           "tableTo": "players",
-          "columnsFrom": [
-            "victim_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["victim_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -603,12 +559,8 @@
           "name": "playerStatistics_player_id_players_id_fk",
           "tableFrom": "playerStatistics",
           "tableTo": "players",
-          "columnsFrom": [
-            "player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -696,12 +648,8 @@
           "name": "playerWarns_victim_id_players_id_fk",
           "tableFrom": "playerWarns",
           "tableTo": "players",
-          "columnsFrom": [
-            "victim_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["victim_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -750,9 +698,7 @@
         "serverApiKey_key_unique": {
           "name": "serverApiKey_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "key"
-          ]
+          "columns": ["key"]
         }
       },
       "policies": {},
@@ -808,12 +754,8 @@
           "name": "session_user_id_users_id_fk",
           "tableFrom": "session",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -923,12 +865,8 @@
           "name": "users_group_id_panelGroups_id_fk",
           "tableFrom": "users",
           "tableTo": "panelGroups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -938,9 +876,7 @@
         "users_username_unique": {
           "name": "users_username_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
+          "columns": ["username"]
         }
       },
       "policies": {},
@@ -952,20 +888,12 @@
     "public.banType": {
       "name": "banType",
       "schema": "public",
-      "values": [
-        "temporary",
-        "permanent"
-      ]
+      "values": ["temporary", "permanent"]
     },
     "public.warnType": {
       "name": "warnType",
       "schema": "public",
-      "values": [
-        "minor",
-        "major",
-        "tempminor",
-        "tempmajor"
-      ]
+      "values": ["minor", "major", "tempminor", "tempmajor"]
     }
   },
   "schemas": {},
