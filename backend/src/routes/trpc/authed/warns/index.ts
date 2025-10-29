@@ -30,7 +30,13 @@ const warnsRouter = router({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             with: {
-              warnAuthor: true,
+              warnAuthor: {
+                columns: {
+                  uuid: true,
+                  username: true,
+                  displayName: true,
+                },
+              },
               warnVictim: true,
             },
             columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
@@ -50,7 +56,13 @@ const warnsRouter = router({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             with: {
-              warnAuthor: true,
+              warnAuthor: {
+                columns: {
+                  uuid: true,
+                  username: true,
+                  displayName: true,
+                },
+              },
               warnVictim: true,
             },
             columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
@@ -73,7 +85,13 @@ const warnsRouter = router({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             with: {
-              warnAuthor: true,
+              warnAuthor: {
+                columns: {
+                  uuid: true,
+                  username: true,
+                  displayName: true,
+                },
+              },
               warnVictim: true,
             },
             columns: !canSeeHidden ? { hidden: canSeeHidden } : {},

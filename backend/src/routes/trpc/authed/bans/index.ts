@@ -23,7 +23,13 @@ const bansRouter = router({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             with: {
-              banAuthor: true,
+              banAuthor: {
+                columns: {
+                  uuid: true,
+                  username: true,
+                  displayName: true,
+                },
+              },
               banVictim: true,
             },
             where: (ban, { eq, or }) =>
@@ -34,7 +40,13 @@ const bansRouter = router({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             with: {
-              banAuthor: true,
+              banAuthor: {
+                columns: {
+                  uuid: true,
+                  username: true,
+                  displayName: true,
+                },
+              },
               banVictim: true,
             },
             where: (ban, { inArray }) =>
