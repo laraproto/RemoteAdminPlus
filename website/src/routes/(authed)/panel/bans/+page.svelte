@@ -7,6 +7,7 @@
   import type { Ban } from "$lib/types/common";
   import trpc from "$lib/trpc";
   import { Button } from "$lib/components/ui/button/index";
+  import { CircleCheck, CircleX } from "@lucide/svelte";
   import { Label } from "$lib/components/ui/label/index";
 
   let { data }: PageProps = $props();
@@ -38,6 +39,7 @@
             <Table.Head>Reason</Table.Head>
             <Table.Head class="w-[100px]">Issued</Table.Head>
             <Table.Head class="w-[100px] text-right">Expires</Table.Head>
+            <Table.Head class="w-[20px]">Expired</Table.Head>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -73,6 +75,13 @@
                       addSuffix: true,
                     })
                   : "Never Expires"}
+              </Table.Cell>
+              <Table.Cell class="flex justify-center">
+                {#if !ban.active}
+                  <CircleCheck class="h-5 w-5 text-green-500" />
+                {:else}
+                  <CircleX class="h-5 w-5 text-red-500" />
+                {/if}
               </Table.Cell>
             </Table.Row>
           {/each}

@@ -2,6 +2,9 @@ import type { PageServerLoad } from "./$types";
 import { redirect } from "@sveltejs/kit";
 import trpcServer from "$lib/trpc.server";
 import { hasPerm } from "$lib/user";
+import { superValidate } from "sveltekit-superforms";
+import { warnSchema } from "../schema";
+import { zod4 } from "sveltekit-superforms/adapters";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
   if (!locals.user || !hasPerm(locals.user, "VIEW_WARNINGS"))
@@ -11,5 +14,8 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     uuid: params.id,
   });
 
-  return { warns };
+  return {
+    warns,
+    form: await superValidate(zod4(warnSchema)),
+  };
 };

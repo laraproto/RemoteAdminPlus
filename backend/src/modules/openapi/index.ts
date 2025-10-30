@@ -27,5 +27,9 @@ export const openAPISpec = await openAPIGenerator.generate(orpcRouter, {
       schema: playerSelect,
     },
   },
-  servers: [{ url: `${firstRunConfig?.url}/api/rpc` }],
+  servers: [
+    {
+      url: "/api/rpc",
+    },
+  ],
 });
