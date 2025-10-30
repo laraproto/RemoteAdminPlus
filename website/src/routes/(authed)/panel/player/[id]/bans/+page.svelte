@@ -6,7 +6,7 @@
   import { CircleCheck, CircleX } from "@lucide/svelte";
   import type { PageProps } from "./$types";
   import { banSchema } from "../schema";
-  import SuperDebug, { superForm } from "sveltekit-superforms";
+  import { superForm } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
   import * as Form from "$lib/components/ui/form/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
@@ -62,8 +62,6 @@
     $formData.uuid = data.player.uuid;
   });
 </script>
-
-<SuperDebug data={$formData} />
 
 <div class="container mx-auto my-8 px-4">
   <div class="flex flex-col gap-4 md:flex-row">
