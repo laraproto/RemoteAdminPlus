@@ -30,8 +30,26 @@ export const actions: Actions = {
       });
     }
 
-    console.log(form);
-
-    return message(form, "I will kms");
+    try {
+      const updateResult = await trpcServer.authed.player.createBan.mutate({
+        uuid: form.data.uuid,
+        reason: form.data.reason,
+        expiresAt: form.data.expiresAt,
+        permanent: form.data.permanent,
+      });
+      if (!updateResult.success) {
+        return fail(400, {
+          form,
+          message: updateResult.message || "Failed to create ban.",
+        });
+      }
+      return message(form, "Ban created successfully");
+    } catch (err) {
+      console.error("Error creating ban:", err);
+      return fail(500, {
+        form,
+        message: "An error occurred while creating ban.",
+      });
+    }
   },
 };

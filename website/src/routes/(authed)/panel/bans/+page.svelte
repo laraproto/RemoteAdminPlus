@@ -70,7 +70,7 @@
                 })}
               </Table.Cell>
               <Table.Cell class="text-right">
-                {ban.type === "permanent"
+                {ban.type !== "permanent"
                   ? formatDistance(ban.expiresAt, new Date(), {
                       addSuffix: true,
                     })

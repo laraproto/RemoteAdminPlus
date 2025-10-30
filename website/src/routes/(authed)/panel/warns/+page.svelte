@@ -36,6 +36,7 @@
           <Table.Row>
             <Table.Head class="w-[150px]">Punished</Table.Head>
             <Table.Head class="w-[150px]">Issuer</Table.Head>
+            <Table.Head>Type</Table.Head>
             <Table.Head>Reason</Table.Head>
             <Table.Head class="w-[100px]">Issued</Table.Head>
             <Table.Head class="w-[100px] text-right">Expires</Table.Head>
@@ -63,6 +64,7 @@
                     "Ghost"}</a
                 ></Table.Cell
               >
+              <Table.Cell>{warn.type}</Table.Cell>
               <Table.Cell>{warn.reason}</Table.Cell>
               <Table.Cell
                 >{formatDistance(warn.createdAt, new Date(), {

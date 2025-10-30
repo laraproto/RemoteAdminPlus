@@ -4,7 +4,6 @@ import { platformRegex } from "@remoteadminplus/shared/common/user";
 import { eq, like } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
-import { scheduleBan } from "#modules/scheduler/queues/bans";
 
 const bansRouter = router({
   get: authedProcedure
@@ -141,10 +140,6 @@ const bansRouter = router({
           success: false,
           message: "Ban failed to update.",
         };
-      }
-
-      if (delay > 0 && !input.permanent) {
-        await scheduleBan(updatedBan[0]);
       }
 
       return {

@@ -14,7 +14,7 @@
     ]
   },
   "scripts": {
-    "dev": "NODE_ENV=development bun run --hot src/index.ts",
+    "dev": "NODE_ENV=development bun run --watch src/index.ts",
     "start": "NODE_ENV=production bun run src/index.ts",
     "db:push": "bun drizzle-kit push",
     "db:generate": "bun drizzle-kit generate",
@@ -37,12 +37,12 @@
     "@trpc/client": "^11.6.0",
     "@trpc/server": "^11.6.0",
     "arctic": "^3.7.0",
-    "bullmq": "^5.61.0",
     "drizzle-orm": "^0.44.5",
     "drizzle-zod": "^0.8.3",
     "hono": "^4.9.11",
     "ioredis": "^5.8.1",
     "jose": "^6.1.0",
+    "node-cron": "^4.2.1",
     "postgres": "^3.4.7",
     "superjson": "^2.2.2",
     "uqr": "^0.1.2",

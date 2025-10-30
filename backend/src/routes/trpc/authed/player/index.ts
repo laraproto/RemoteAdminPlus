@@ -3,8 +3,6 @@ import { db, schema } from "#modules/db";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { JointFlags, platformRegex } from "@remoteadminplus/shared/common/user";
-import { scheduleWarn } from "#modules/scheduler/queues/warns.js";
-import { scheduleBan } from "#modules/scheduler/queues/bans.js";
 
 const playerRouter = router({
   createUser: authedProcedure
@@ -191,10 +189,6 @@ const playerRouter = router({
         };
       }
 
-      if (delay > 0 && !(input.type === "minor" || input.type === "major")) {
-        scheduleWarn(updatedWarn[0]);
-      }
-
       return {
         success: !!updatedWarn[0],
         warn: updatedWarn[0],
@@ -216,24 +210,23 @@ const playerRouter = router({
     .mutation(async ({ input, ctx }) => {
       const delay = input.expiresAt.getTime() - Date.now();
 
-      const newBan = await db.insert(schema.playerBans).values({
-        victimId: input.uuid,
-        authorId: ctx.user.uuid,
-        reason: input.reason,
-        type: input.permanent ? "permanent" : "temporary",
-        expiresAt: input.permanent ? new Date() : input.expiresAt,
-        active: input.permanent ? true : delay > 0,
-      });
+      const newBan = await db
+        .insert(schema.playerBans)
+        .values({
+          victimId: input.uuid,
+          authorId: ctx.user.uuid,
+          reason: input.reason,
+          type: input.permanent ? "permanent" : "temporary",
+          expiresAt: input.permanent ? new Date() : input.expiresAt,
+          active: input.permanent ? true : delay > 0,
+        })
+        .returning();
 
       if (!newBan[0]) {
         return {
           success: false,
           message: "Failed to create ban.",
         };
-      }
-
-      if (delay > 0 && !input.permanent) {
-        scheduleBan(newBan[0]);
       }
 
       return {

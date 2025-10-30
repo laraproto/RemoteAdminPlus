@@ -1,10 +1,9 @@
 import { authedProcedure } from "#modules/trpc";
 import { router } from "#modules/trpc";
 import { platformRegex, JointFlags } from "@remoteadminplus/shared/common/user";
-import { eq, and, or, like } from "drizzle-orm";
+import { eq, and, like } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
-import { scheduleWarn } from "#modules/scheduler/queues/warns";
 
 const warnsRouter = router({
   get: authedProcedure
@@ -158,10 +157,6 @@ const warnsRouter = router({
           success: false,
           message: "Warn failed to update.",
         };
-      }
-
-      if (delay > 0 && !permanent) {
-        await scheduleWarn(updatedWarn[0]);
       }
 
       return {

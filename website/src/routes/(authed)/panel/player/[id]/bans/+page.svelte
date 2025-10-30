@@ -34,6 +34,9 @@
     onSubmit({ formData }) {
       formData.set("uuid", data.player.uuid);
     },
+    onUpdated() {
+      $formData.uuid = data.player.uuid;
+    },
   });
 
   const { form: formData, enhance } = form;
@@ -200,7 +203,7 @@
                     })}
                   </Table.Cell>
                   <Table.Cell class="text-right">
-                    {ban.type === "permanent"
+                    {ban.type !== "permanent"
                       ? formatDistance(ban.expiresAt, new Date(), {
                           addSuffix: true,
                         })
