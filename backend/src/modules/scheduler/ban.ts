@@ -2,6 +2,11 @@ import { lte, and, eq, ne } from "drizzle-orm";
 import { db, schema } from "../db";
 
 export const handleBanExpiry = async () => {
+  if (!db) {
+    console.log("Database not initialized.");
+    return;
+  }
+
   const bansQuery = await db
     .update(schema.playerBans)
     .set({

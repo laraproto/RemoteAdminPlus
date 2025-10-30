@@ -1,7 +1,9 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
 import { firstRunConfig } from "#modules/firstrun";
+import { DB_USER } from "#modules/config.js";
 import postgres from "postgres";
+import { userInfo } from "os";
 import { migrate } from "./migrator";
 
 export let db: ReturnType<typeof drizzle<typeof schema>>;
@@ -16,6 +18,7 @@ const buildDatabaseClient = () => {
     return postgres({
       host: firstRunConfig?.database_url,
       database: "remoteadminplus",
+      user: DB_USER || userInfo().username,
     });
   }
 };

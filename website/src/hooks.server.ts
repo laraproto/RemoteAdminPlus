@@ -12,10 +12,14 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.configuration = null;
   }
 
+  console.log(event.request.headers.get("X-Forwarded-Host"));
+
   if (
     event.locals.configuration &&
     event.locals.configuration.url !== null &&
-    !(event.url.origin === event.locals.configuration.url)
+    !(process.env.NODE_ENV === "development") &&
+    event.request.headers.get("X-Forwarded-Host") !==
+      new URL(event.locals.configuration.url).host
   ) {
     error(503, {
       message: "Service Unavailable",

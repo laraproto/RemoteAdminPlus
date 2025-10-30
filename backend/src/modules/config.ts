@@ -20,6 +20,10 @@ export const PORT = parseInt(isUndefinedOrEmpty(Bun.env.PORT, "3000")!);
 
 export const DATA_DIR = (() => {
   const platform = os.type();
+  if (isUndefinedOrEmpty(Bun.env.DATA_DIR)) {
+    fs.mkdirSync(Bun.env.DATA_DIR, { recursive: true });
+    return Bun.env.DATA_DIR;
+  }
   switch (platform) {
     case "Linux":
     case "Darwin": {
@@ -36,13 +40,13 @@ export const DATA_DIR = (() => {
       return data_dir;
     }
     default: {
-      if (Bun.env.DATA_DIR) {
-        fs.mkdirSync(Bun.env.DATA_DIR, { recursive: true });
-        return Bun.env.DATA_DIR;
-      }
       throw new Error(`Unsupported platform: ${platform}`);
     }
   }
+})();
+
+export const DB_USER = (() => {
+  return isUndefinedOrEmpty(Bun.env.DB_USER);
 })();
 
 export const DATABASE_HINT = (() => {

@@ -4,30 +4,28 @@ services:
   postgres:
     image: postgres:18
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
       - app_data:/data
       - postgres-socket:/var/run/postgresql
+      - ./initrunner.sh:/docker-entrypoint-initdb.d/initrunner.sh:ro
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "thisshouldntmatterbecauseitsnotpubliclyaccessible"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 1s
       timeout: 5s
       retries: 10
-    post_start:
-      - command: useradd -m runner
-        user: root
-      - command: psql -U ${DB_USER} -d ${DB_NAME} -c "CREATE ROLE IF NOT EXISTS runner; CREATE DATABASE remoteadminplus OWNER runner;"
-        user: postgres
-
-  valkey:
-    image: valkey/valkey:8-alpine
 
   traefik:
     image: traefik:v3.4
+    restart: always
     command:
       - "--providers.docker=true"
       - "--api.insecure=true"
       - "--entrypoints.web.address=:8080"
       - "--entrypoints.traefik.address=:8081"
+      - "--entryPoints.web.forwardedHeaders.trustedIPs=127.0.0.1/32"
     ports:
       - "8778:8080"
       - 8081:8081
@@ -41,13 +39,19 @@ services:
     build: &build
       context: .
       args:
-        SERVER_API_URL: http://api:3000
+        SERVER_API_URL: http://api:3000/api
+        URL: http://localhost:8080
     restart: on-failure
+    user: runner
     environment: &env
+      - DB_USER=runner
+      - HOST=0.0.0.0
       - NODE_ENV=production
       - DATABASE_HINT=/var/run/postgresql
       - SERVER_API_URL=http://api:3000
       - DATA_DIR=/data
+      - PROTOCOL_HEADER=x-forwarded-proto
+      - HOST_HEADER=x-forwarded-host
     working_dir: /app/backend
     command: ["bun", "run", "start"]
     volumes:
@@ -58,6 +62,9 @@ services:
     labels:
       - "traefik.http.routers.api.priority=100"
       - "traefik.http.routers.api.rule=PathPrefix(`/api`)"
+    post_start:
+      - command: chown -R runner:runner /data
+        user: root
 
   website:
     depends_on:

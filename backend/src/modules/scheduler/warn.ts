@@ -2,6 +2,11 @@ import { lte, and, eq, ne } from "drizzle-orm";
 import { db, schema } from "../db";
 
 export const handleWarnExpiry = async () => {
+  if (!db) {
+    console.log("Database not initialized.");
+    return;
+  }
+
   const warnsQuery = await db
     .update(schema.playerWarns)
     .set({
