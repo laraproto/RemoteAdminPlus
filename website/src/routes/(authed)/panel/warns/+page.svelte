@@ -34,7 +34,7 @@
         <Table.Header>
           <Table.Row>
             <Table.Head class="w-[150px]">Punished</Table.Head>
-            <Table.Head class="w-[150px]">Punisher</Table.Head>
+            <Table.Head class="w-[150px]">Issuer</Table.Head>
             <Table.Head>Reason</Table.Head>
             <Table.Head class="w-[100px]">Issued</Table.Head>
             <Table.Head class="w-[100px] text-right">Expires</Table.Head>

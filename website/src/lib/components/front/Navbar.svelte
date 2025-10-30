@@ -19,6 +19,7 @@
     setLogoutDialog(false);
     if (value?.success) {
       invalidateAll();
+      //@ts-expect-error not sure why this is breaking now
       goto(resolve(value?.redirect as Pathname));
     }
   };

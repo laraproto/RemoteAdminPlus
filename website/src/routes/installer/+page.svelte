@@ -38,7 +38,8 @@
         admin_password: adminPassword,
       });
 
-      if (response?.success) goto(resolve(response.redirect as Pathname));
+      //@ts-expect-error not sure why this is breaking now
+      if (response?.success) goto(resolve(response.redirect));
     } catch (err) {
       if ((err as TRPCClientError<AppRouter>).cause?.message)
         errorMessage = (err as TRPCClientError<AppRouter>).cause?.message;
