@@ -41,6 +41,7 @@
     "@trpc/client": "^11.6.0",
     "@trpc/server": "^11.6.0",
     "axios": "^1.12.2",
+    "date-fns": "^4.1.0",
     "mode-watcher": "^1.0.8",
     "superjson": "^2.2.2",
     "zod": "^4.0.17"

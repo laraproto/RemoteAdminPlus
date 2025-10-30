@@ -33,6 +33,7 @@ const firstrunRouter = router({
           .string()
           .optional()
           .default(DATABASE_HINT ? DATABASE_HINT : ""),
+        url: z.url().optional().default("http://localhost:5173"),
         app_name: z.string().optional().default("RemoteAdminPlus"),
         admin_username: z.string(),
         admin_password: z.string(),
@@ -65,10 +66,11 @@ const firstrunRouter = router({
         input.app_name,
         input.admin_username,
         password_hashed,
+        input.url,
       );
 
       const insertFirstRun = configDB.query(
-        `INSERT INTO data (database_url, app_name, admin_username, admin_password) VALUES ($database_url, $app_name, $admin_username, $admin_password);`,
+        `INSERT INTO data (database_url, url, app_name, admin_username, admin_password) VALUES ($database_url, $url, $app_name, $admin_username, $admin_password);`,
       );
 
       setFirstRunConfig(firstrunGenerated);
@@ -110,6 +112,7 @@ const firstrunRouter = router({
 
         insertFirstRun.get({
           database_url: firstrunGenerated.database_url,
+          url: firstrunGenerated.url,
           app_name: firstrunGenerated.app_name,
           admin_username: firstrunGenerated.admin_username,
           admin_password: firstrunGenerated.admin_password,

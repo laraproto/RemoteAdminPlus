@@ -22,6 +22,7 @@
 
   let databaseUrl = $state(data.firstrun?.database_hint);
   let appName = $state(data.configuration?.appName);
+  let url = $state<string>("");
   let adminUsername = $state<string>("");
   let adminPassword = $state<string>("");
 
@@ -32,6 +33,7 @@
       const response = await trpcClient.firstrun.set.mutate({
         database_url: data.firstrun?.database_hint || databaseUrl,
         app_name: appName,
+        url,
         admin_username: adminUsername,
         admin_password: adminPassword,
       });
@@ -44,7 +46,7 @@
   };
 </script>
 
-<Head title="Login" />
+<Head title="Installer" />
 
 <div class="grid h-[94vh] place-items-center">
   <Card.Root class="w-full max-w-sm">
@@ -73,6 +75,12 @@
               bind:value={databaseUrl}
               required
             />
+          </div>
+          <div class="grid gap-2">
+            <Label for="url"
+              >Panel URL (will only respond on this url afterwards)</Label
+            >
+            <Input id="url" bind:value={url} required />
           </div>
           <div class="grid gap-2">
             <Label for="app_name">App Name</Label>

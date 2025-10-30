@@ -1,6 +1,7 @@
 import { publicProcedure, router } from "#modules/trpc";
 import * as auth from "#modules/auth";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import authedRouter from "#routes/trpc/authed";
 import firstrunRouter from "#routes/trpc/firstrun";
 import registrationRouter from "#routes/trpc/registration";
@@ -24,6 +25,12 @@ export const appRouter = router({
       },
     })
     .mutation(async ({ ctx }) => {
+      if (!firstRunConfig) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+        });
+      }
+
       const authHeader = ctx.getSessionToken();
       if (authHeader && ctx.session) {
         return {
@@ -51,12 +58,14 @@ export const appRouter = router({
       z.object({
         appName: z.string(),
         registrationEnabled: z.boolean(),
+        url: z.url().nullable(),
       }),
     )
     .query(() => {
       return {
         appName: firstRunConfig?.app_name || "RemoteAdminPlus",
         registrationEnabled: firstRunConfig?.canRegister ?? false,
+        url: firstRunConfig?.url || null,
       };
     }),
   authed: authedRouter,

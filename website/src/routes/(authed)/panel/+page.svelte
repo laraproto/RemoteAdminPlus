@@ -23,5 +23,11 @@
   <p>{JSON.stringify(trpcResult)}</p>
 {/if}
 
+<p>
+  Tbh I don't really know what to put on this page rn, if stat tracking was
+  working it would probably have info on a player's playtime, would probably
+  show a banner too if the user was banned
+</p>
+
 <style>
 </style>

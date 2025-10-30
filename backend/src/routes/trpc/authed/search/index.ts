@@ -1,6 +1,6 @@
 import { authedProcedure, router } from "#modules/trpc/index";
 import { db, schema } from "#modules/db/index";
-import { eq, sql } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import { platformRegex } from "@remoteadminplus/shared/common/user";
 import { z } from "zod";
 
@@ -34,7 +34,7 @@ const searchRouter = router({
           return await db.query.player.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
-            where: sql`to_tsvector('english', ${schema.player.name}) @@ plainto_tsquery('english', ${input.query})`,
+            where: like(schema.player.name, `%${input.query}%`),
           });
       }
     }),

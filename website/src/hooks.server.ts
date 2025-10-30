@@ -1,4 +1,4 @@
-import type { Handle } from "@sveltejs/kit";
+import { type Handle, error } from "@sveltejs/kit";
 import client from "$lib/trpc.server";
 import type { TRPCClientError } from "@trpc/client";
 import type { AppRouter } from "@remoteadminplus/backend/trpc";
@@ -10,6 +10,16 @@ export const handle: Handle = async ({ event, resolve }) => {
   } catch (error) {
     console.error("Error fetching configuration:", error);
     event.locals.configuration = null;
+  }
+
+  if (
+    event.locals.configuration &&
+    event.locals.configuration.url !== null &&
+    !(event.url.origin === event.locals.configuration.url)
+  ) {
+    error(503, {
+      message: "Service Unavailable",
+    });
   }
 
   try {
@@ -30,6 +40,9 @@ export const handle: Handle = async ({ event, resolve }) => {
       });
     }
   } catch (err) {
+    if ((err as TRPCClientError<AppRouter>).message === "UNAUTHORIZED") {
+      return resolve(event);
+    }
     console.error("Error validating/creating session:", err);
   }
 

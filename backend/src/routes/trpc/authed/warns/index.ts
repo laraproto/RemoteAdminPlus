@@ -1,7 +1,7 @@
 import { authedProcedure } from "#modules/trpc";
 import { router } from "#modules/trpc";
 import { platformRegex, JointFlags } from "@remoteadminplus/shared/common/user";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, or, like } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
 import { scheduleWarn } from "#modules/scheduler/queues/warns";
@@ -16,14 +16,7 @@ const warnsRouter = router({
         pageSize: z.number().min(10).max(100).optional().default(10),
       }),
     )
-    .query(async ({ input, ctx }) => {
-      const canSeeHidden =
-        (ctx.user.group !== null &&
-          !!(
-            ctx.user.group?.permissions & JointFlags["VIEW_HIDDEN_WARNINGS"]
-          )) ||
-        !!(ctx.user.flags & JointFlags["VIEW_HIDDEN_WARNINGS"]);
-
+    .query(async ({ input }) => {
       switch (true) {
         case z.uuid().safeParse(input.query).success:
           return await db.query.playerWarns.findMany({
@@ -39,16 +32,10 @@ const warnsRouter = router({
               },
               warnVictim: true,
             },
-            columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
-            where: (table, { eq, and, or }) =>
-              and(
-                or(
-                  eq(table.authorId, input.query),
-                  eq(table.victimId, input.query),
-                ),
-                !canSeeHidden
-                  ? eq(schema.playerWarns.hidden, false)
-                  : undefined,
+            where: (table, { eq, or }) =>
+              or(
+                eq(table.authorId, input.query),
+                eq(table.victimId, input.query),
               ),
           });
         case z.string().regex(platformRegex).safeParse(input.query).success:
@@ -65,23 +52,17 @@ const warnsRouter = router({
               },
               warnVictim: true,
             },
-            columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
-            where: (warns, { and, inArray }) =>
-              and(
-                inArray(
-                  warns.victimId,
-                  db
-                    .select({ id: schema.player.uuid })
-                    .from(schema.player)
-                    .where(eq(schema.player.platformId, input.query)),
-                ),
-                !canSeeHidden
-                  ? eq(schema.playerWarns.hidden, false)
-                  : undefined,
+            where: (warns, { inArray }) =>
+              inArray(
+                warns.victimId,
+                db
+                  .select({ id: schema.player.uuid })
+                  .from(schema.player)
+                  .where(eq(schema.player.platformId, input.query)),
               ),
           });
-        default:
-          return await db.query.playerWarns.findMany({
+        default: {
+          const result = await db.query.playerWarns.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             with: {
@@ -94,45 +75,36 @@ const warnsRouter = router({
               },
               warnVictim: true,
             },
-            columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
-            where: (warns, { inArray, and, or }) =>
-              and(
+            where: (warns, { inArray, or, isNull }) =>
+              or(
+                inArray(
+                  warns.victimId,
+                  db
+                    .select({ id: schema.player.uuid })
+                    .from(schema.player)
+                    .where(like(schema.player.name, `%${input.query}%`)),
+                ),
                 or(
                   inArray(
-                    warns.victimId,
+                    warns.authorId,
                     db
-                      .select({ id: schema.player.uuid })
-                      .from(schema.player)
-                      .where(
-                        sql`to_tsvector('english', ${schema.player.name}) @@ plainto_tsquery('english', ${input.query})`,
-                      ),
+                      .select({ id: schema.user.uuid })
+                      .from(schema.user)
+                      .where(like(schema.user.username, `%${input.query}%`)),
                   ),
-                  or(
-                    inArray(
-                      warns.authorId,
-                      db
-                        .select({ id: schema.user.uuid })
-                        .from(schema.user)
-                        .where(
-                          sql`to_tsvector('english', ${schema.user.username}) @@ plainto_tsquery('english', ${input.query})`,
-                        ),
-                    ),
-                    inArray(
-                      warns.authorId,
-                      db
-                        .select({ id: schema.user.uuid })
-                        .from(schema.user)
-                        .where(
-                          sql`to_tsvector('english', ${schema.user.displayName}) @@ plainto_tsquery('english', ${input.query})`,
-                        ),
-                    ),
+                  inArray(
+                    warns.authorId,
+                    db
+                      .select({ id: schema.user.uuid })
+                      .from(schema.user)
+                      .where(like(schema.user.displayName, `%${input.query}%`)),
                   ),
+                  isNull(warns.authorId),
                 ),
-                !canSeeHidden
-                  ? eq(schema.playerWarns.hidden, false)
-                  : undefined,
               ),
           });
+          return result;
+        }
       }
     }),
   edit: authedProcedure

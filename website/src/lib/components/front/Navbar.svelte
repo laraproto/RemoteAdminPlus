@@ -1,7 +1,6 @@
 <script lang="ts">
   import { resolve } from "$app/paths";
   import * as NavigationMenu from "$lib/components/ui/navigation-menu/index.js";
-  import { NavigationMenu as NavigationMenuPrimitive } from "bits-ui";
   import { Separator } from "$lib/components/ui/separator/index.js";
   import type { User, Configuration } from "$lib/types/common";
   import trpcClient from "$lib/trpc";
@@ -13,6 +12,7 @@
   import { page } from "$app/state";
   import { IsMobile } from "$lib/hooks/is-mobile.svelte";
   import templogo from "$lib/images/templogo.png";
+  import { JointFlags } from "@remoteadminplus/shared/common/user";
 
   const logout = async () => {
     const value = await trpcClient.authed.authedUser.logout.mutate();
@@ -113,62 +113,66 @@
       </div>
       <!-- Right: User Menu -->
       <div class="mr-4 flex flex-1 justify-end">
-        <NavigationMenu.Root>
-          <NavigationMenuPrimitive.Sub>
-            <NavigationMenu.List>
-              {#if user}
+        <NavigationMenu.Root viewport={false}>
+          <NavigationMenu.List>
+            {#if user}
+              {#if user.flags & JointFlags.SUPERADMIN}
                 <NavigationMenu.Item>
-                  <NavigationMenu.Trigger
-                    >{user.displayName ?? user.username}</NavigationMenu.Trigger
+                  <NavigationMenu.Link href="/panel/admin"
+                    >Admin Settings</NavigationMenu.Link
                   >
-                  <NavigationMenu.Content>
-                    <ul class="grid w-[100px] gap-4 p-2">
-                      <li>
-                        <NavigationMenu.Link
-                          href="/panel"
-                          class="flex-row items-center gap-2"
-                        >
-                          Panel
-                        </NavigationMenu.Link>
-                        <Separator class="my-2" />
-                        <NavigationMenu.Link
-                          href="/profile"
-                          class="flex-row items-center gap-2"
-                        >
-                          Profile
-                        </NavigationMenu.Link>
-                        <NavigationMenu.Link
-                          href="/profile/settings"
-                          class="flex-row items-center gap-2"
-                        >
-                          Settings
-                        </NavigationMenu.Link>
-                        <Separator class="my-2" />
-                        <NavigationMenu.Link
-                          href="javascript:void"
-                          class="flex-row items-center gap-2"
-                          onclick={() => setLogoutDialog(true)}
-                          >Logout</NavigationMenu.Link
-                        >
-                      </li>
-                    </ul>
-                  </NavigationMenu.Content>
-                </NavigationMenu.Item>
-              {:else}
-                {#if configuration?.registrationEnabled}
-                  <NavigationMenu.Item>
-                    <NavigationMenu.Link href="/register"
-                      >Register</NavigationMenu.Link
-                    >
-                  </NavigationMenu.Item>
-                {/if}
-                <NavigationMenu.Item>
-                  <NavigationMenu.Link href="/login">Login</NavigationMenu.Link>
                 </NavigationMenu.Item>
               {/if}
-            </NavigationMenu.List>
-            <NavigationMenu.Viewport class="overflow-hidden" />
-          </NavigationMenuPrimitive.Sub>
+              <NavigationMenu.Item>
+                <NavigationMenu.Trigger
+                  >{user.displayName ?? user.username}</NavigationMenu.Trigger
+                >
+                <NavigationMenu.Content>
+                  <ul class="grid w-[100px] gap-4 p-2">
+                    <li>
+                      <NavigationMenu.Link
+                        href="/panel"
+                        class="flex-row items-center gap-2"
+                      >
+                        Panel
+                      </NavigationMenu.Link>
+                      <Separator class="my-2" />
+                      <NavigationMenu.Link
+                        href="/profile"
+                        class="flex-row items-center gap-2"
+                      >
+                        Profile
+                      </NavigationMenu.Link>
+                      <NavigationMenu.Link
+                        href="/profile/settings"
+                        class="flex-row items-center gap-2"
+                      >
+                        Settings
+                      </NavigationMenu.Link>
+                      <Separator class="my-2" />
+                      <NavigationMenu.Link
+                        href="javascript:void"
+                        class="flex-row items-center gap-2"
+                        onclick={() => setLogoutDialog(true)}
+                        >Logout</NavigationMenu.Link
+                      >
+                    </li>
+                  </ul>
+                </NavigationMenu.Content>
+              </NavigationMenu.Item>
+            {:else}
+              {#if configuration?.registrationEnabled}
+                <NavigationMenu.Item>
+                  <NavigationMenu.Link href="/register"
+                    >Register</NavigationMenu.Link
+                  >
+                </NavigationMenu.Item>
+              {/if}
+              <NavigationMenu.Item>
+                <NavigationMenu.Link href="/login">Login</NavigationMenu.Link>
+              </NavigationMenu.Item>
+            {/if}
+          </NavigationMenu.List>
         </NavigationMenu.Root>
       </div>
     </nav>

@@ -223,11 +223,13 @@ export const player = pgTable(
   ],
 );
 
-export const playerRelations = relations(player, ({ one }) => ({
+export const playerRelations = relations(player, ({ one, many }) => ({
   user: one(user, {
     fields: [player.userId],
     references: [user.uuid],
   }),
+  bans: many(playerBans, { relationName: "banVictim" }),
+  warns: many(playerWarns, { relationName: "warnVictim" }),
 }));
 
 // For the purpose of lowering data storage burden rather than copying the entire player entry over and over again for each server, statistics are stored in their own table per panel, this could also allow for the possibility of linking bans, warns, etc. between allied servers
@@ -285,23 +287,15 @@ export const playerWarns = pgTable("playerWarns", {
   ...timeData,
 });
 
-export const playerStatisticsRelations = relations(
-  playerStatistics,
-  ({ many }) => ({
-    bans: many(playerBans, { relationName: "banVictim" }),
-    warns: many(playerWarns, { relationName: "warnVictim" }),
-  }),
-);
-
 export const playerBansRelations = relations(playerBans, ({ one }) => ({
   banAuthor: one(user, {
     fields: [playerBans.authorId],
     references: [user.uuid],
     relationName: "banAuthor",
   }),
-  banVictim: one(playerStatistics, {
+  banVictim: one(player, {
     fields: [playerBans.victimId],
-    references: [playerStatistics.uuid],
+    references: [player.uuid],
     relationName: "banVictim",
   }),
 }));
@@ -312,9 +306,9 @@ export const playerWarnsRelations = relations(playerWarns, ({ one }) => ({
     references: [user.uuid],
     relationName: "warnAuthor",
   }),
-  warnVictim: one(playerStatistics, {
+  warnVictim: one(player, {
     fields: [playerWarns.victimId],
-    references: [playerStatistics.uuid],
+    references: [player.uuid],
     relationName: "warnVictim",
   }),
 }));

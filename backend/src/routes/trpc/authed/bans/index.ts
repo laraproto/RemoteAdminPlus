@@ -1,7 +1,7 @@
 import { authedProcedure } from "#modules/trpc";
 import { router } from "#modules/trpc";
 import { platformRegex } from "@remoteadminplus/shared/common/user";
-import { eq, sql } from "drizzle-orm";
+import { eq, like } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
 import { scheduleBan } from "#modules/scheduler/queues/bans";
@@ -62,36 +62,41 @@ const bansRouter = router({
           return await db.query.playerBans.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
-            where: (ban, { inArray, or }) =>
+            with: {
+              banAuthor: {
+                columns: {
+                  uuid: true,
+                  username: true,
+                  displayName: true,
+                },
+              },
+              banVictim: true,
+            },
+            where: (bans, { inArray, or, isNull }) =>
               or(
                 inArray(
-                  ban.victimId,
+                  bans.victimId,
                   db
                     .select({ id: schema.player.uuid })
                     .from(schema.player)
-                    .where(
-                      sql`to_tsvector('english', ${schema.player.name}) @@ plainto_tsquery('english', ${input.query})`,
-                    ),
+                    .where(like(schema.player.name, `%${input.query}%`)),
                 ),
                 or(
                   inArray(
-                    ban.authorId,
+                    bans.authorId,
                     db
                       .select({ id: schema.user.uuid })
                       .from(schema.user)
-                      .where(
-                        sql`to_tsvector('english', ${schema.user.username}) @@ plainto_tsquery('english', ${input.query})`,
-                      ),
+                      .where(like(schema.user.username, `%${input.query}%`)),
                   ),
                   inArray(
-                    ban.authorId,
+                    bans.authorId,
                     db
                       .select({ id: schema.user.uuid })
                       .from(schema.user)
-                      .where(
-                        sql`to_tsvector('english', ${schema.user.displayName}) @@ plainto_tsquery('english', ${input.query})`,
-                      ),
+                      .where(like(schema.user.displayName, `%${input.query}%`)),
                   ),
+                  isNull(bans.authorId),
                 ),
               ),
           });

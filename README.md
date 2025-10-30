@@ -9,7 +9,7 @@ RemoteAdminPlus is an attempt at an open source self-hostable panel to improve t
 - [ ] Permissions (basis implemented but ui and group stuff lacking)
 - [ ] User invites
 - [x] First setup wizard
-- [ ] Bare minimum openid implementation for steam
+- [ ] Bare minimum openid implementation for steam (nvm)
 - [ ] Plugin implementation, eventually, right now will serve as info aggregation, no sync
 - [ ] OAuth support (maybe later, will settle for an account linking system via plugin)
 - [ ] Account Linking (maybe later)

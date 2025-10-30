@@ -114,7 +114,6 @@ const playerRouter = router({
           eq(schema.playerWarns.victimId, input.uuid),
           !canSeeHidden ? eq(schema.playerWarns.hidden, false) : undefined,
         ),
-        columns: !canSeeHidden ? { hidden: canSeeHidden } : {},
       });
 
       return warns;

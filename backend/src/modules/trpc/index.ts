@@ -163,3 +163,21 @@ export const serverProcedure = publicProcedure
       ctx,
     });
   });
+
+export const adminProcedure = publicProcedure
+  .meta({
+    route: {
+      tags: ["internal", "admin"],
+    },
+  })
+  .use(async (opts) => {
+    const { ctx } = opts;
+
+    if (!ctx.user || !(ctx.user.flags & JointFlags.SUPERADMIN)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return opts.next({
+      ctx,
+    });
+  });
