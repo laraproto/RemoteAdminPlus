@@ -62,7 +62,7 @@ export const REDIS_PASS = isUndefinedOrEmpty(Bun.env.REDIS_PASS);
 
 export const REDIS_URL = (() => {
   if (!isUndefinedOrEmpty(Bun.env.REDIS_URL))
-    throw new Error("REDIS_URL is not set");
+    return "";
 
   return Bun.env.REDIS_URL;
 })();
