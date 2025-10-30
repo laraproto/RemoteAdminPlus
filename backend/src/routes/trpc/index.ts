@@ -8,14 +8,14 @@ import { firstRunConfig } from "#modules/firstrun";
 
 export const appRouter = router({
   hello: publicProcedure
-    .meta({
-      route: {
-        tags: ["internal"],
-      },
-    })
-    .input(z.string().nullish())
-    .query(({ input, ctx }) => {
-      return `Hello ${input ?? "world"}! Your session is ${JSON.stringify(ctx.session)}`;
+    .input(
+      z.object({
+        name: z.string().nullish(),
+      }),
+    )
+    .output(z.string())
+    .query(({ input }) => {
+      return `Hello ${input.name ?? "world"}`;
     }),
   session: publicProcedure
     .meta({
@@ -41,12 +41,24 @@ export const appRouter = router({
         authToken: sessionToken,
       };
     }),
-  configuration: publicProcedure.query(() => {
-    return {
-      appName: firstRunConfig?.app_name || "RemoteAdminPlus",
-      registrationEnabled: firstRunConfig?.canRegister ?? false,
-    };
-  }),
+  configuration: publicProcedure
+    .meta({
+      route: {
+        description: "what",
+      },
+    })
+    .output(
+      z.object({
+        appName: z.string(),
+        registrationEnabled: z.boolean(),
+      }),
+    )
+    .query(() => {
+      return {
+        appName: firstRunConfig?.app_name || "RemoteAdminPlus",
+        registrationEnabled: firstRunConfig?.canRegister ?? false,
+      };
+    }),
   authed: authedRouter,
   firstrun: firstrunRouter,
   registration: registrationRouter,

@@ -1,13 +1,14 @@
 import { createMiddleware } from "hono/factory";
-import { getCookie, setCookie } from "hono/cookie";
+import { getCookie } from "hono/cookie";
 import * as auth from "#modules/auth";
-import type { UserSelectMinimal } from "#modules/db/schema";
+import type { UserSelectMinimal, ServerSelect } from "#modules/db/schema";
 import { db } from "#modules/db";
 
 const sessionMiddleware = createMiddleware<{
   Variables: {
     session: auth.Session | null;
     user: UserSelectMinimal | null;
+    server: ServerSelect | null;
   };
 }>(async (c, next) => {
   if (!db) {
@@ -49,7 +50,21 @@ const sessionMiddleware = createMiddleware<{
     }
 
     case "Server": {
-      console.log("Attempt to us unimplemented server authentication route");
+      if (authToken === undefined) {
+        await next();
+        return;
+      }
+      // Server auth
+      const server = await auth.validateServerApiKey(authToken);
+
+      if (server === null) {
+        await next();
+        return;
+      }
+
+      console.log(server);
+      c.set("server", server);
+
       await next();
       return;
     }
@@ -78,32 +93,11 @@ const sessionMiddleware = createMiddleware<{
 
   let authSession: auth.Session | null = null;
   let user: UserSelectMinimal | null = null;
-  let newlyAssigned: boolean = false;
-  if (authCookie === undefined) {
-    const sessionToken = auth.generateSessionToken();
-    authSession = await auth.createSession(sessionToken);
-    setCookie(c, "session", sessionToken, { expires: authSession.expiresAt });
-    c.set("session", authSession);
-    newlyAssigned = true;
-  }
 
-  if (authCookie !== undefined && !newlyAssigned) {
+  if (authCookie !== undefined) {
     const validation = await auth.validateSessionToken(authCookie);
     authSession = validation.session;
     user = validation.user;
-  }
-
-  if (authSession === null) {
-    const sessionToken = auth.generateSessionToken();
-    authSession = await auth.createSession(sessionToken);
-    setCookie(c, "session", sessionToken, {
-      expires: authSession.expiresAt,
-      httpOnly: true,
-      sameSite: "Strict",
-      path: "/",
-    });
-    c.set("session", authSession);
-    newlyAssigned = true;
   }
 
   c.set("session", authSession);

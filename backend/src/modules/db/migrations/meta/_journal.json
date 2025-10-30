@@ -71,6 +71,20 @@
       "when": 1761488991883,
       "tag": "0009_sudden_hobgoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1761822754175,
+      "tag": "0010_typical_yellow_claw",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1761822890236,
+      "tag": "0011_nifty_mad_thinker",
+      "breakpoints": true
     }
   ]
 }

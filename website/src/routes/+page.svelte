@@ -5,7 +5,9 @@
   let trpcResult = $state<string>();
 
   const buttonClick = async () => {
-    trpcResult = await client.hello.query("World");
+    trpcResult = await client.hello.query({
+      name: null,
+    });
 
     console.log(trpcResult);
   };

@@ -1,5 +1,5 @@
 import type { Session } from "#modules/auth";
-import type { UserSelectMinimal } from "#modules/db/schema";
+import type { ServerSelect, UserSelectMinimal } from "#modules/db/schema";
 import {
   JointFlags,
   type JointFlagKeys,
@@ -13,6 +13,7 @@ interface TRPCContext {
   session: Session;
   user: UserSelectMinimal;
   getSessionToken: () => string | undefined;
+  server?: ServerSelect;
 }
 
 interface Meta {
@@ -139,6 +140,23 @@ export const registrationProcedure = publicProcedure
     const { ctx } = opts;
     if (ctx.user || ctx.session === null) {
       throw new TRPCError({ code: "FORBIDDEN" });
+    }
+
+    return opts.next({
+      ctx,
+    });
+  });
+
+export const serverProcedure = publicProcedure
+  .meta({
+    route: {
+      tags: ["server"],
+    },
+  })
+  .use(async (opts) => {
+    const { ctx } = opts;
+    if (!ctx.server) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
     }
 
     return opts.next({

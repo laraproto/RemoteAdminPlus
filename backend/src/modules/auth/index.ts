@@ -33,6 +33,44 @@ export async function createSession(token: string, userId?: string) {
   return session;
 }
 
+export async function createServerApiKey(
+  token: string,
+  userId: string,
+  description: string,
+) {
+  const sessionKey = encodeHexLowerCase(
+    sha256(new TextEncoder().encode(token)),
+  );
+  const apiKey: schema.ServerInsert = {
+    key: sessionKey,
+    creatorId: userId,
+    description,
+  };
+
+  await db.insert(schema.servers).values(apiKey);
+
+  return apiKey;
+}
+
+export async function validateServerApiKey(token: string) {
+  const apikey = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+  const result = await db.query.servers.findFirst({
+    where: (serversTable, { eq }) => eq(serversTable.key, apikey),
+    with: {
+      creator: {
+        with: {
+          group: true,
+        },
+      },
+    },
+  });
+
+  const validated =
+    (await schema.serverSelect.safeParseAsync(result)).data ?? null;
+
+  return validated;
+}
+
 export async function validateSessionToken(token: string) {
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
   const result = await db.query.session.findFirst({

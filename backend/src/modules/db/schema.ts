@@ -13,7 +13,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { z } from "zod";
-import { createSelectSchema } from "drizzle-zod";
+import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 
 const timeData = {
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -70,7 +70,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
   connections: many(connections),
   bans: many(playerBans, { relationName: "banAuthor" }),
   warns: many(playerWarns, { relationName: "warnAuthor" }),
-  passwordResets: many(passwordResets),
+  servers: many(servers),
   player: many(player),
   group: one(panelGroups, {
     fields: [user.groupId],
@@ -324,23 +324,16 @@ export const servers = pgTable("serverApiKey", {
   uuid: uuid("id").primaryKey().defaultRandom(),
   // store the hashed representation you fuck
   key: varchar("key", { length: 64 }).notNull().unique(),
+  creatorId: uuid("creator_id")
+    .notNull()
+    .references(() => user.uuid, { onDelete: "cascade" }),
   description: varchar("description", { length: 255 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const passwordResets = pgTable("passwordResets", {
-  uuid: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => user.uuid, { onDelete: "cascade" }),
-  token: varchar("token", { length: 64 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-});
-
-export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
-  user: one(user, {
-    fields: [passwordResets.userId],
+export const serversRelations = relations(servers, ({ one }) => ({
+  creator: one(user, {
+    fields: [servers.creatorId],
     references: [user.uuid],
   }),
 }));
@@ -371,3 +364,24 @@ export const warnsSelect = createSelectSchema(playerWarns);
 
 export type Bans = z.infer<typeof bansSelect>;
 export type Warns = z.infer<typeof warnsSelect>;
+
+export const playerInsert = createInsertSchema(player);
+export const playerSelect = createSelectSchema(player);
+
+export type PlayerInsert = z.infer<typeof playerInsert>;
+export type PlayerSelect = z.infer<typeof playerSelect>;
+
+export const serverSelectWithoutApiKey = createSelectSchema(servers);
+export const serverInsert = createInsertSchema(servers);
+
+export type ServerSelectWithoutApiKey = z.infer<
+  typeof serverSelectWithoutApiKey
+>;
+export type ServerInsert = z.infer<typeof serverInsert>;
+
+export const serverSelect = z.object({
+  ...serverSelectWithoutApiKey.shape,
+  user: userSelectMinimal,
+});
+
+export type ServerSelect = z.infer<typeof serverSelect>;

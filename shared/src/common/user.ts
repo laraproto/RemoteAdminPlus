@@ -78,6 +78,8 @@ export const Permissions = {
   VIEW_BAN_APPEALS: 1n << 36n,
   // Manage ban appeals
   MANAGE_BAN_APPEALS: 1n << 37n,
+
+  MANAGE_SERVERS: 1n << 38n,
 } as const;
 
 export const UserFlags = {

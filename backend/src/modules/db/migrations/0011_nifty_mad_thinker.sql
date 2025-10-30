@@ -1,0 +1,2 @@
+ALTER TABLE "serverApiKey" ALTER COLUMN "creator_id" SET NOT NULL;--> statement-breakpoint
+ALTER TABLE "serverApiKey" ADD CONSTRAINT "serverApiKey_creator_id_users_id_fk" FOREIGN KEY ("creator_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
