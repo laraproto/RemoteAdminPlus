@@ -13,7 +13,7 @@ RemoteAdminPlus is an attempt at an open source self-hostable panel to improve t
 - [ ] Plugin implementation, eventually, right now will serve as info aggregation, no sync
 - [ ] OAuth support (maybe later, will settle for an account linking system via plugin)
 - [ ] Account Linking (maybe later)
-- [ ] Banning, Warnings (about 60% there)
+- [x] Banning, Warnings
 - [ ] Leave of absence system (activity handling will need to get done by the people whose job it is to do for now)
 
 ## Implementation plans
