@@ -56,7 +56,7 @@ const serverRouter = router({
       z.object({
         name: z.string(),
         platformId: z.string().regex(platformRegex),
-        do_not_track: z.boolean().default(true),
+        doNotTrack: z.boolean().default(true),
       }),
     )
     .output(
@@ -82,7 +82,7 @@ const serverRouter = router({
         .values({
           name: input.name,
           platformId: input.platformId,
-          doNotTrack: input.do_not_track,
+          doNotTrack: input.doNotTrack,
         })
         .returning();
 
@@ -195,7 +195,7 @@ const serverRouter = router({
       z.object({
         platformId: z.string().regex(platformRegex),
         name: z.string().optional(),
-        do_not_track: z.boolean().optional(),
+        doNotTrack: z.boolean().optional(),
       }),
     )
     .output(
@@ -220,7 +220,7 @@ const serverRouter = router({
         .update(schema.player)
         .set({
           name: input.name,
-          doNotTrack: input.do_not_track,
+          doNotTrack: input.doNotTrack,
         })
         .where(eq(schema.player.uuid, player.uuid))
         .returning();
