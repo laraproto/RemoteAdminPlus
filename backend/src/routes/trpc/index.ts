@@ -6,6 +6,7 @@ import authedRouter from "#routes/trpc/authed";
 import firstrunRouter from "#routes/trpc/firstrun";
 import registrationRouter from "#routes/trpc/registration";
 import { firstRunConfig } from "#modules/firstrun";
+import serverRouter from "./server";
 
 export const appRouter = router({
   hello: publicProcedure
@@ -71,6 +72,7 @@ export const appRouter = router({
   authed: authedRouter,
   firstrun: firstrunRouter,
   registration: registrationRouter,
+  server: serverRouter,
 });
 
 export type AppRouter = typeof appRouter;

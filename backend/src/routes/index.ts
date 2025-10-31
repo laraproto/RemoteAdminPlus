@@ -24,6 +24,7 @@ router.use(
     createContext: (opts, c) => ({
       session: c.get("session"),
       user: c.get("user"),
+      server: c.get("server"),
       getSessionToken: () => c.req.header("Authorization"),
     }),
   }),
@@ -43,6 +44,7 @@ router.use("/rpc/*", sessionMiddleware, async (c, next) => {
     context: {
       session: c.get("session")!,
       user: c.get("user")!,
+      server: c.get("server")!,
       getSessionToken: () => c.req.header("Authorization"),
     }, // Provide initial context if needed
   });

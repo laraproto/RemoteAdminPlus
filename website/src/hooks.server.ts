@@ -12,8 +12,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.configuration = null;
   }
 
-  console.log(event.request.headers.get("X-Forwarded-Host"));
-
   if (
     event.locals.configuration &&
     event.locals.configuration.url !== null &&

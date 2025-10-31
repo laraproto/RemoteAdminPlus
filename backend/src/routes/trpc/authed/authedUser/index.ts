@@ -1,4 +1,5 @@
 import { authedProcedure, router } from "#modules/trpc";
+import * as link from "#modules/link";
 import { invalidateSession } from "#modules/auth/index";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -153,6 +154,62 @@ const authedUserRouter = router({
         };
       } catch (err) {
         console.error("Error updating password:", err);
+        return { success: false };
+      }
+    }),
+  finishLink: authedProcedure
+    .input(
+      z.object({
+        linkCode: z.string(),
+        password: z.string().min(8).max(128),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const userRecord = await db.query.user.findFirst({
+          where: (users, { eq }) => eq(users.uuid, ctx.user.uuid),
+          columns: {
+            uuid: true,
+            password: true,
+          },
+        });
+
+        if (!userRecord) {
+          return { success: false, message: "We couldn't find your user." };
+        }
+
+        if (!(await password.verify(input.password, userRecord.password))) {
+          return {
+            success: false,
+            message: "The provided password is incorrect.",
+          };
+        }
+
+        const linkEntry = await link.validateLinkEntry(input.linkCode);
+
+        if (!linkEntry) {
+          return { success: false, message: "Invalid or expired link code." };
+        }
+
+        const updateResult = await db
+          .update(schema.player)
+          .set({
+            userId: ctx.user.uuid,
+          })
+          .where(eq(schema.player.uuid, linkEntry.playerId))
+          .returning();
+
+        if (updateResult.length === 0) {
+          return { success: false, message: "Failed to link account." };
+        }
+
+        await db
+          .delete(schema.accountLinkCodes)
+          .where(eq(schema.accountLinkCodes.code, linkEntry.code));
+
+        return { success: true, message: "Account linked successfully." };
+      } catch (err) {
+        console.error("Error linking account:", err);
         return { success: false };
       }
     }),

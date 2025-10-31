@@ -26,8 +26,8 @@
 <div class="container mx-auto my-8 px-4">
   <Card.Root>
     <Card.Header>
-      <Card.Title>Bans</Card.Title>
-      <Card.Description>Bans issued</Card.Description>
+      <Card.Title>Search</Card.Title>
+      <Card.Description>Search for players</Card.Description>
     </Card.Header>
     <Card.Content>
       <Table.Root>

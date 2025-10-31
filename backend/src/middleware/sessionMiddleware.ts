@@ -62,7 +62,6 @@ const sessionMiddleware = createMiddleware<{
         return;
       }
 
-      console.log(server);
       c.set("server", server);
 
       await next();

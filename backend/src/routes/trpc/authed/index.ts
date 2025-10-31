@@ -4,6 +4,7 @@ import bansRouter from "./bans";
 import playerRouter from "./player";
 import warnsRouter from "./warns";
 import searchRouter from "./search";
+import adminRouter from "./admin";
 //import { z } from "zod";
 
 const authedRouter = router({
@@ -12,6 +13,7 @@ const authedRouter = router({
   warns: warnsRouter,
   bans: bansRouter,
   search: searchRouter,
+  admin: adminRouter,
 });
 
 export default authedRouter;

@@ -30,3 +30,10 @@ export const passwordSchema = z
   );
 
 export type PasswordSchema = typeof passwordSchema;
+
+export const formLinkSchema = z.object({
+  linkCode: z.string(),
+  password: z.string().min(8).max(128),
+});
+
+export type FormLinkSchema = typeof formLinkSchema;

@@ -4,7 +4,7 @@
   import * as Form from "$lib/components/ui/form/index.js";
   import { Input } from "$lib/components/ui/input/index.js";
   import type { PageData } from "./$types";
-  import { usernameSchema, passwordSchema } from "../schema";
+  import { usernameSchema, passwordSchema, formLinkSchema } from "../schema";
   import { superForm } from "sveltekit-superforms";
   import { zod4Client } from "sveltekit-superforms/adapters";
   import { invalidateAll } from "$app/navigation";
@@ -30,10 +30,19 @@
     },
   });
 
+  const formLink = superForm(data.formLink, {
+    validators: zod4Client(formLinkSchema),
+    onUpdated: async ({ form }) => {
+      invalidateAll();
+      toast(form.message);
+    },
+  });
+
   const mobileQuery = new IsMobile();
 
   const { form: formDataUsername, enhance: enhanceUsername } = formUsername;
   const { form: formDataPassword, enhance: enhancePassword } = formPassword;
+  const { form: formDataLink, enhance: enhanceLink } = formLink;
 </script>
 
 <Head title="Account Settings" />
@@ -52,7 +61,7 @@
             method="POST"
             action="?/username"
             use:enhanceUsername
-            class="xl:w-120 w-70 lg:w-80"
+            class="w-50 lg:w-60 xl:w-80"
           >
             <Form.Field form={formUsername} name="username">
               <Form.Control>
@@ -90,9 +99,52 @@
         <div class="flex-1 p-6">
           <form
             method="POST"
+            action="?/link"
+            use:enhanceLink
+            class="w-50 lg:w-60 xl:w-80"
+          >
+            <Form.Field form={formLink} name="linkCode">
+              <Form.Control>
+                {#snippet children({ props })}
+                  <Form.Label>Link Code</Form.Label>
+                  <Input {...props} bind:value={$formDataLink.linkCode} />
+                {/snippet}
+              </Form.Control>
+              <Form.Description
+                >Link code you got from in-game, linking cannot be undone (right
+                now)</Form.Description
+              >
+              <Form.FieldErrors />
+            </Form.Field>
+            <Form.Field form={formLink} name="password">
+              <Form.Control>
+                {#snippet children({ props })}
+                  <Form.Label>Password</Form.Label>
+                  <Input
+                    {...props}
+                    type="password"
+                    bind:value={$formDataUsername.password}
+                  />
+                {/snippet}
+              </Form.Control>
+              <Form.Description>Password confirmation</Form.Description>
+              <Form.FieldErrors />
+            </Form.Field>
+            <Form.Button>Submit</Form.Button>
+          </form>
+        </div>
+
+        {#if mobileQuery.current}
+          <Separator class="my-4" />
+        {/if}
+
+        <!-- Form 3 -->
+        <div class="flex-1 p-6">
+          <form
+            method="POST"
             action="?/password"
             use:enhancePassword
-            class="xl:w-120 w-70 lg:w-80"
+            class="w-50 lg:w-60 xl:w-80"
           >
             <Form.Field form={formPassword} name="currentPassword">
               <Form.Control>

@@ -313,6 +313,23 @@ export const playerWarnsRelations = relations(playerWarns, ({ one }) => ({
   }),
 }));
 
+export const accountLinkCodes = pgTable("accountLinkCodes", {
+  uuid: uuid("id").primaryKey().defaultRandom(),
+  code: varchar("code", { length: 32 }).notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull().defaultNow(),
+  playerId: uuid("player_id")
+    .references(() => player.uuid, { onDelete: "cascade" })
+    .notNull(),
+  ...timeData,
+});
+
+export const accountLinkRelations = relations(accountLinkCodes, ({ one }) => ({
+  player: one(player, {
+    fields: [accountLinkCodes.playerId],
+    references: [player.uuid],
+  }),
+}));
+
 // Used for communication between server and api
 export const servers = pgTable("serverApiKey", {
   uuid: uuid("id").primaryKey().defaultRandom(),
@@ -362,6 +379,11 @@ export type Warns = z.infer<typeof warnsSelect>;
 export const playerInsert = createInsertSchema(player);
 export const playerSelect = createSelectSchema(player);
 
+export const playerSelectBans = z.object({
+  ...playerSelect.shape,
+  bans: z.array(bansSelect),
+});
+
 export type PlayerInsert = z.infer<typeof playerInsert>;
 export type PlayerSelect = z.infer<typeof playerSelect>;
 
@@ -375,7 +397,20 @@ export type ServerInsert = z.infer<typeof serverInsert>;
 
 export const serverSelect = z.object({
   ...serverSelectWithoutApiKey.shape,
-  user: userSelectMinimal,
+  creator: userSelectMinimal,
 });
 
 export type ServerSelect = z.infer<typeof serverSelect>;
+
+export const accountLink = createSelectSchema(accountLinkCodes);
+export const accountLinkInsert = createInsertSchema(accountLinkCodes);
+
+export type AccountLinkInsert = z.infer<typeof accountLinkInsert>;
+export type AccountLink = z.infer<typeof accountLink>;
+
+export const accountLinkWithplayer = z.object({
+  ...accountLink.shape,
+  player: playerSelect,
+});
+
+export type AccountLinkWithPlayer = z.infer<typeof accountLinkWithplayer>;
