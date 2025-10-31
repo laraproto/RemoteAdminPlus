@@ -1,6 +1,6 @@
 import { authedProcedure, router } from "#modules/trpc/index";
 import { db, schema } from "#modules/db/index";
-import { eq, like } from "drizzle-orm";
+import { eq, like, desc } from "drizzle-orm";
 import { platformRegex } from "@remoteadminplus/shared/common/user";
 import { z } from "zod";
 
@@ -23,18 +23,21 @@ const searchRouter = router({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             where: eq(schema.player.uuid, input.query),
+            orderBy: [desc(schema.player.createdAt)],
           });
         case z.string().regex(platformRegex).safeParse(input.query).success:
           return await db.query.player.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             where: eq(schema.player.platformId, input.query),
+            orderBy: [desc(schema.player.createdAt)],
           });
         default:
           return await db.query.player.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
             where: like(schema.player.name, `%${input.query}%`),
+            orderBy: [desc(schema.player.createdAt)],
           });
       }
     }),

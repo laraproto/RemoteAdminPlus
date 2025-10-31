@@ -1,7 +1,7 @@
 import { authedProcedure } from "#modules/trpc";
 import { router } from "#modules/trpc";
 import { platformRegex, JointFlags } from "@remoteadminplus/shared/common/user";
-import { eq, and, like } from "drizzle-orm";
+import { eq, and, like, desc } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
 
@@ -21,6 +21,7 @@ const warnsRouter = router({
           return await db.query.playerWarns.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
+            orderBy: [desc(schema.playerWarns.createdAt)],
             with: {
               warnAuthor: {
                 columns: {
@@ -41,6 +42,7 @@ const warnsRouter = router({
           return await db.query.playerWarns.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
+            orderBy: [desc(schema.playerWarns.createdAt)],
             with: {
               warnAuthor: {
                 columns: {
@@ -64,6 +66,7 @@ const warnsRouter = router({
           const result = await db.query.playerWarns.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
+            orderBy: [desc(schema.playerWarns.createdAt)],
             with: {
               warnAuthor: {
                 columns: {

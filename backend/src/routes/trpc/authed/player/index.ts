@@ -1,6 +1,6 @@
 import { authedProcedure, router } from "#modules/trpc";
 import { db, schema } from "#modules/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { z } from "zod";
 import { JointFlags, platformRegex } from "@remoteadminplus/shared/common/user";
 
@@ -98,6 +98,7 @@ const playerRouter = router({
         !!(ctx.user.flags & JointFlags["VIEW_HIDDEN_WARNINGS"]);
 
       const warns = await db.query.playerWarns.findMany({
+        orderBy: [desc(schema.playerWarns.createdAt)],
         with: {
           warnVictim: true,
           warnAuthor: {
@@ -127,6 +128,7 @@ const playerRouter = router({
     )
     .query(async ({ input }) => {
       const bans = await db.query.playerBans.findMany({
+        orderBy: [desc(schema.playerBans.createdAt)],
         with: {
           banVictim: true,
           banAuthor: {

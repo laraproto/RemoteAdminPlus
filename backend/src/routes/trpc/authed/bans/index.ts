@@ -1,7 +1,7 @@
 import { authedProcedure } from "#modules/trpc";
 import { router } from "#modules/trpc";
 import { platformRegex } from "@remoteadminplus/shared/common/user";
-import { eq, like } from "drizzle-orm";
+import { eq, like, desc } from "drizzle-orm";
 import { db, schema } from "#modules/db";
 import { z } from "zod";
 
@@ -21,6 +21,7 @@ const bansRouter = router({
           return await db.query.playerBans.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
+            orderBy: [desc(schema.playerBans.createdAt)],
             with: {
               banAuthor: {
                 columns: {
@@ -38,6 +39,7 @@ const bansRouter = router({
           return await db.query.playerBans.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
+            orderBy: [desc(schema.playerBans.createdAt)],
             with: {
               banAuthor: {
                 columns: {
@@ -61,6 +63,7 @@ const bansRouter = router({
           return await db.query.playerBans.findMany({
             limit: input.pageSize,
             offset: (input.page - 1) * input.pageSize,
+            orderBy: [desc(schema.playerBans.createdAt)],
             with: {
               banAuthor: {
                 columns: {
