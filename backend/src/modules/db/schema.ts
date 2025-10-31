@@ -315,7 +315,7 @@ export const playerWarnsRelations = relations(playerWarns, ({ one }) => ({
 
 export const accountLinkCodes = pgTable("accountLinkCodes", {
   uuid: uuid("id").primaryKey().defaultRandom(),
-  code: varchar("code", { length: 32 }).notNull().unique(),
+  code: varchar("code", { length: 64 }).notNull().unique(),
   expiresAt: timestamp("expires_at").notNull().defaultNow(),
   playerId: uuid("player_id")
     .references(() => player.uuid, { onDelete: "cascade" })

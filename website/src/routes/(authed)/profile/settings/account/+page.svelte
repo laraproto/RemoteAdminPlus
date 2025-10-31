@@ -123,7 +123,7 @@
                   <Input
                     {...props}
                     type="password"
-                    bind:value={$formDataUsername.password}
+                    bind:value={$formDataLink.password}
                   />
                 {/snippet}
               </Form.Control>

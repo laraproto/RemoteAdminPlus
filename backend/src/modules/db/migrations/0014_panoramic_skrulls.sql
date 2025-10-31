@@ -1,0 +1,1 @@
+ALTER TABLE "accountLinkCodes" ALTER COLUMN "code" SET DATA TYPE varchar(64);
