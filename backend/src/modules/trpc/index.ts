@@ -156,8 +156,6 @@ export const serverProcedure = publicProcedure
   .use(async (opts) => {
     const { ctx } = opts;
 
-    console.log(opts.input);
-
     if (!ctx.server) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
