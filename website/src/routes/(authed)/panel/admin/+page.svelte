@@ -31,7 +31,7 @@
 <div class="container mx-auto my-8 px-4">
   <Card.Root>
     <Card.Header>
-      <Card.Title>Placeholdeeeer</Card.Title>
+      <Card.Title>Create a Server API Key (Placeholdeeeer)</Card.Title>
       <Card.Description>Wawa.</Card.Description>
     </Card.Header>
     <form method="POST" use:enhance>
